@@ -82,9 +82,9 @@ export function Navbar() {
               <span>{lang === 'en' ? 'Control Tower' : 'Torre de Control'}</span>
             </Link>
 
-            {/* Login Button - Discrete */}
+            {/* Login Button - Goes to Admin Control Tower */}
             <Link
-              href="/login"
+              href="/admin"
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--glass-border)] text-[var(--text-mid)] hover:text-[var(--text-primary)] hover:border-[var(--nexus-violet)] transition-all text-sm"
             >
               <LogIn className="w-4 h-4" />
@@ -142,7 +142,7 @@ export function Navbar() {
                   <span>{lang === 'en' ? '🇬🇧 EN' : '🇪🇸 ES'}</span>
                 </button>
                 <Link
-                  href="/login"
+                  href="/admin"
                   className="flex items-center gap-2 text-[var(--text-mid)]"
                 >
                   <LogIn className="w-4 h-4" />

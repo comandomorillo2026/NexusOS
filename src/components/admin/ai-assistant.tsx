@@ -164,10 +164,10 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
 
   return (
     <div 
-      className={`fixed z-50 transition-all duration-300 ${
+      className={`fixed z-[100] transition-all duration-300 ${
         isMinimized 
           ? 'bottom-4 right-4 w-80' 
-          : 'bottom-4 right-4 w-[450px] h-[600px] max-h-[80vh]'
+          : 'bottom-4 right-4 w-[450px] h-[600px] max-h-[85vh]'
       }`}
     >
       {/* Header */}
@@ -200,9 +200,9 @@ export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
       {/* Chat Area - Hidden when minimized */}
       {!isMinimized && (
         <>
-          <div className="bg-[#0A0820] flex-1 overflow-hidden flex flex-col border-x border-[rgba(167,139,250,0.2)]">
+          <div className="bg-[#0A0820] h-[450px] overflow-hidden flex flex-col border-x border-[rgba(167,139,250,0.2)]">
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: '400px' }}>
               {messages.map((message) => (
                 <div
                   key={message.id}

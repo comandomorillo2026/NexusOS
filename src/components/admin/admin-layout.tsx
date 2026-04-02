@@ -25,6 +25,8 @@ import {
   Sun,
   Moon,
   Database,
+  FileText,
+  Megaphone,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -42,6 +44,8 @@ export function AdminLayout({ children, activeTab = 'dashboard' }: AdminLayoutPr
     { id: 'orders', label: 'Órdenes', icon: CreditCard },
     { id: 'tenants', label: 'Inquilinos', icon: Building2 },
     { id: 'industries', label: 'Industrias', icon: Globe },
+    { id: 'templates', label: 'Templates', icon: FileText },
+    { id: 'broadcasts', label: 'Comunicados', icon: Megaphone },
     { id: 'competitive', label: 'Análisis Competitivo', icon: Target },
     { id: 'scalability', label: 'Escalabilidad', icon: TrendingUp },
     { id: 'database', label: 'Base de Datos', icon: Database },
@@ -96,7 +100,7 @@ export function AdminLayout({ children, activeTab = 'dashboard' }: AdminLayoutPr
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground uppercase px-3 mb-2">Principal</p>
             <ul className="space-y-1">
-              {navItems.slice(0, 5).map((item) => (
+              {navItems.slice(0, 6).map((item) => (
                 <li key={item.id}>
                   <button
                     onClick={() => {
@@ -118,11 +122,36 @@ export function AdminLayout({ children, activeTab = 'dashboard' }: AdminLayoutPr
             </ul>
           </div>
 
+          {/* Tools & Analysis */}
+          <div className="mb-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase px-3 mb-2">Herramientas</p>
+            <ul className="space-y-1">
+              {navItems.slice(6, 9).map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => {
+                      const event = new CustomEvent('adminTabChange', { detail: item.id });
+                      window.dispatchEvent(event);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left ${
+                      activeTab === item.id
+                        ? 'bg-primary/10 text-primary border border-primary/20'
+                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="text-sm">{item.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Configuration */}
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase px-3 mb-2">Configuración</p>
             <ul className="space-y-1">
-              {navItems.slice(5).map((item) => (
+              {navItems.slice(9).map((item) => (
                 <li key={item.id}>
                   <button
                     onClick={() => {

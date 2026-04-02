@@ -63,6 +63,8 @@ import { AIAssistant, AIAssistantButton } from './ai-assistant';
 import { ScalabilityPlan } from './scalability-plan';
 import { CompetitiveAnalysis } from './competitive-analysis';
 import { DatabaseMonitor } from './database-monitor';
+import { TemplatesModule } from './templates-module';
+import { BroadcastsModule } from './broadcasts-module';
 
 // ============================================
 // STAT CARD COMPONENT
@@ -1067,6 +1069,10 @@ export function AdminDashboard() {
         return <UsersManagement />;
       case 'pricing':
         return <PricingConfiguration />;
+      case 'templates':
+        return <TemplatesModule />;
+      case 'broadcasts':
+        return <BroadcastsModule />;
       case 'settings':
         return <SystemSettings />;
       default:

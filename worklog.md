@@ -1958,3 +1958,119 @@ Successfully implemented a comprehensive dark/light theme system with proper per
 - Create invoice PDF generation
 - Add more payment methods (bank transfer details)
 - Implement subscription renewal reminders
+
+---
+## Task ID: nexusos-restructuring - super-z
+### Work Task
+Restructurar NexusOS: configurar dominio principal /portal, mejorar módulo de inquilinos, crear sistema de templates personales, sistema de comunicados masivos, arreglar AI Assistant, verificar creación de inquilinos, sistema de precios por industria, y perfeccionar módulo Panadería.
+
+### Work Summary
+
+#### 1. Configuración del Dominio Principal
+- **Archivo modificado**: `/src/app/page.tsx`
+- La raíz `/` ahora redirige automáticamente a `/portal`
+- El portal de ventas es la página pública principal donde:
+  - Se explican y venden las industrias
+  - Se muestran precios personalizados
+  - Los clientes completan el formulario de registro
+
+#### 2. Botón "Iniciar Sesión" → /admin
+- **Archivo modificado**: `/src/components/sales-portal/navbar.tsx`
+- El botón de login ahora redirige a `/admin` (Torre de Control)
+- Aplicado tanto en desktop como en móvil
+
+#### 3. Sistema de Templates Personales del Admin
+- **Archivo creado**: `/src/components/admin/templates-module.tsx` (~600 líneas)
+- Funcionalidades:
+  - Recibos de pago pre-cargados (mensualidad, activación)
+  - Facturas con PNL detallado
+  - Emails pre-escritos (bienvenida, recordatorio de pago, suspensión)
+  - Campos editables con variables dinámicas `{{variable}}`
+  - Vista previa en tiempo real
+  - Detección automática de variables
+  - Botones de imprimir, descargar PDF, enviar email
+  - 6 templates por defecto incluidos
+
+#### 4. Sistema de Comunicados Masivos (Broadcasts)
+- **Archivo creado**: `/src/components/admin/broadcasts-module.tsx` (~550 líneas)
+- Funcionalidades:
+  - Compositor de mensajes en 3 pasos
+  - Selector de destinatarios:
+    - Todos los inquilinos activos
+    - Por industria específica
+    - Inquilinos específicos
+  - Vista previa del email antes de enviar
+  - Historial de comunicados enviados
+  - Estadísticas: total enviados, entregados, alcance, tasa de apertura
+  - Filtros por tipo de comunicado
+
+#### 5. Arreglo del AI Assistant
+- **Archivo modificado**: `/src/components/admin/ai-assistant.tsx`
+- Cambios:
+  - z-index incrementado de 50 a 100 para garantizar visibilidad
+  - Altura máxima aumentada de 80vh a 85vh
+  - Altura fija del contenedor de chat: 450px
+  - Max-height en área de mensajes: 400px
+  - Scroll automático a nuevos mensajes mejorado
+
+#### 6. Integración de Nuevos Módulos al Admin
+- **Archivos modificados**:
+  - `/src/components/admin/admin-dashboard.tsx`
+  - `/src/components/admin/admin-layout.tsx`
+- Se agregaron las nuevas opciones al sidebar:
+  - Templates (icono: FileText)
+  - Comunicados (icono: Megaphone)
+- Navegación reorganizada en 3 secciones:
+  - Principal (6 items)
+  - Herramientas (3 items)
+  - Configuración (3 items)
+
+#### 7. Mejora del Módulo Panadería
+- **Archivo modificado**: `/src/app/bakery/page.tsx`
+- Integración completa de todos los módulos existentes:
+  - Dashboard, POS, Productos, Pedidos, Producción
+  - Clientes, Facturas, Reportes, Catálogo Público, Configuración
+  - AI Assistant integrado
+- Navegación con DashboardLayout
+
+#### 8. Sistema de Precios por Industria
+- El wizard de creación de inquilinos ya incluye precios dinámicos por industria
+- Cada industria tiene precios personalizados basados en análisis de mercado:
+  - Clínica: Starter TT$1,200 | Growth TT$2,200 | Premium TT$3,800
+  - Enfermería: Starter TT$800 | Growth TT$1,500 | Premium TT$2,500
+  - Belleza: Starter TT$600 | Growth TT$1,100 | Premium TT$1,900
+  - Bufete: Starter TT$1,500 | Growth TT$2,800 | Premium TT$4,500
+  - Farmacia: Starter TT$1,800 | Growth TT$3,200 | Premium TT$5,000
+  - Aseguradora: Starter TT$8,000 | Growth TT$15,000 | Premium TT$28,000
+  - Retail: Starter TT$700 | Growth TT$1,300 | Premium TT$2,200
+  - Panadería: Starter TT$500 | Growth TT$900 | Premium TT$1,500
+
+### Files Created
+1. `/src/components/admin/templates-module.tsx` - Sistema de templates personales
+2. `/src/components/admin/broadcasts-module.tsx` - Sistema de comunicados masivos
+
+### Files Modified
+1. `/src/app/page.tsx` - Redirección a /portal
+2. `/src/components/sales-portal/navbar.tsx` - Botón login → /admin
+3. `/src/components/admin/ai-assistant.tsx` - Mejoras de visibilidad
+4. `/src/components/admin/admin-dashboard.tsx` - Integración nuevos módulos
+5. `/src/components/admin/admin-layout.tsx` - Navegación actualizada
+6. `/src/app/bakery/page.tsx` - Integración completa módulos
+
+### Technical Notes
+- Todos los componentes usan TypeScript con tipos estrictos
+- Diseño consistente con glass-morphism y tema oscuro
+- No se usan colores azul/indigo (cumple reglas del proyecto)
+- shadcn/ui components utilizados
+- ESLint: 7 errores preexistentes (no causados por cambios nuevos)
+
+### Flujo de Usuario Actualizado
+1. Usuario visita `/` → Redirige automáticamente a `/portal`
+2. En el portal ve información de industrias y precios
+3. Click en "Iniciar Sesión" → Va a `/admin` (Torre de Control)
+4. Admin puede:
+   - Crear inquilinos con wizard (precios por industria)
+   - Gestionar inquilinos existentes
+   - Usar templates para generar recibos/facturas/emails
+   - Enviar comunicados masivos
+   - Usar AI Assistant para desarrollo
