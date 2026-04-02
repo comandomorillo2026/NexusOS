@@ -12,13 +12,9 @@ import { BeautyProducts } from "@/components/beauty/beauty-products";
 import { BeautyFinances } from "@/components/beauty/beauty-finances";
 import { BeautyReports } from "@/components/beauty/beauty-reports";
 import { BeautySettings } from "@/components/beauty/beauty-settings";
-import { BeautyAccounting } from "@/components/beauty/beauty-accounting";
-import { BeautyBranches } from "@/components/beauty/beauty-branches";
-import { BeautyRoute } from "@/components/auth/protected-layout";
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: "LayoutDashboard" },
-  { id: "branches", label: "Sedes", icon: "Building2" },
   { id: "appointments", label: "Citas", icon: "Calendar" },
   { id: "pos", label: "Punto de Venta", icon: "ShoppingCart" },
   { id: "clients", label: "Clientes", icon: "Users" },
@@ -26,20 +22,17 @@ const menuItems = [
   { id: "services", label: "Servicios", icon: "Scissors" },
   { id: "products", label: "Productos", icon: "Package" },
   { id: "finances", label: "Finanzas", icon: "DollarSign" },
-  { id: "accounting", label: "Contabilidad", icon: "BookOpen" },
   { id: "reports", label: "Reportes", icon: "BarChart3" },
   { id: "settings", label: "Configuración", icon: "Settings" },
 ];
 
-function BeautyPageContent() {
+export default function BeautyPage() {
   const [activeModule, setActiveModule] = useState("dashboard");
 
   const renderContent = () => {
     switch (activeModule) {
       case "dashboard":
         return <BeautyDashboard />;
-      case "branches":
-        return <BeautyBranches />;
       case "appointments":
         return <BeautyAppointments />;
       case "pos":
@@ -54,8 +47,6 @@ function BeautyPageContent() {
         return <BeautyProducts />;
       case "finances":
         return <BeautyFinances />;
-      case "accounting":
-        return <BeautyAccounting />;
       case "reports":
         return <BeautyReports />;
       case "settings":
@@ -77,13 +68,5 @@ function BeautyPageContent() {
     >
       {renderContent()}
     </DashboardLayout>
-  );
-}
-
-export default function BeautyPage() {
-  return (
-    <BeautyRoute>
-      <BeautyPageContent />
-    </BeautyRoute>
   );
 }

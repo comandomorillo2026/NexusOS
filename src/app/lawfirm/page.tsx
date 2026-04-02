@@ -13,7 +13,6 @@ import { LawCalendar } from "@/components/lawfirm/law-calendar";
 import { LawReports } from "@/components/lawfirm/law-reports";
 import { LawSettings } from "@/components/lawfirm/law-settings";
 import { LawGlobalSearch } from "@/components/lawfirm/law-global-search";
-import { LawfirmRoute } from "@/components/auth/protected-layout";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -30,7 +29,7 @@ const menuItems = [
   { id: "settings", label: "Configuración", icon: "Settings" },
 ];
 
-function LawFirmPageContent() {
+export default function LawFirmPage() {
   const [activeModule, setActiveModule] = useState("dashboard");
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
 
@@ -87,16 +86,7 @@ function LawFirmPageContent() {
         {renderContent()}
       </DashboardLayout>
 
-      {/* Global Search Modal */}
       <LawGlobalSearch open={globalSearchOpen} onOpenChange={setGlobalSearchOpen} />
     </>
-  );
-}
-
-export default function LawFirmPage() {
-  return (
-    <LawfirmRoute>
-      <LawFirmPageContent />
-    </LawfirmRoute>
   );
 }
