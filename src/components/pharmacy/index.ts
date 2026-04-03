@@ -1,0 +1,12 @@
+export { default as PharmacyDashboard } from './PharmacyDashboard';
+export { default as DrugDatabase } from './DrugDatabase';
+export { default as InventoryModule } from './InventoryModule';
+export { default as PrescriptionQueue } from './PrescriptionQueue';
+export { default as PatientProfile } from './PatientProfile';
+export { default as POSModule } from './POSModule';
+export { default as ImmunizationModule } from './ImmunizationModule';
+export { default as CompoundingLab } from './CompoundingLab';
+export { default as ReportsModule } from './ReportsModule';
+export { default as DrugInteractions } from './DrugInteractions';
+export { default as ControlledSubstancesLog } from './ControlledSubstancesLog';
+export { default as InsuranceClaims } from './InsuranceClaims';

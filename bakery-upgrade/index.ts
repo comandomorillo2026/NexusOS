@@ -1,0 +1,12 @@
+export { BakeryDashboard } from './bakery-dashboard';
+export { BakeryProducts } from './bakery-products';
+export { BakeryOrders } from './bakery-orders';
+export { BakeryCustomers } from './bakery-customers';
+export { BakeryProduction } from './bakery-production';
+export { BakeryInvoices } from './bakery-invoices';
+export { BakeryReports } from './bakery-reports';
+export { BakerySettings } from './bakery-settings';
+export { BakeryPOS, useOfflineDB } from './bakery-pos';
+export { BakeryAIAssistant, BakeryAIButton, BakeryAIPage } from './bakery-ai-assistant';
+export { BakeryCatalogSettings } from './bakery-catalog-settings';
+export { CatalogAnalytics } from './bakery-catalog-analytics';
