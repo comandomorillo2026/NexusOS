@@ -179,7 +179,7 @@ export function DashboardLayout({
               className="flex items-center gap-3 px-3 py-2.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
             >
               <Home className="h-5 w-5" />
-              {sidebarOpen && <span className="font-medium">Inicio NexusOS</span>}
+              {sidebarOpen && <span className="font-medium">Inicio AETHEL OS</span>}
             </a>
 
             <div className="my-3 border-t border-border" />

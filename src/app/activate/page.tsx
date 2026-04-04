@@ -88,7 +88,7 @@ export default function ActivatePage() {
           </h1>
           <p className="text-[var(--text-mid)] max-w-md mx-auto">
             El período de prueba de 7 días ha terminado. Activa tu plan para continuar 
-            usando NexusOS con todos tus datos intactos.
+            usando AETHEL OS con todos tus datos intactos.
           </p>
         </div>
 
@@ -98,7 +98,7 @@ export default function ActivatePage() {
             <Sparkles className="w-5 h-5 text-[var(--nexus-violet-lite)]" />
             <div>
               <p className="text-[var(--nexus-violet-lite)] font-medium">
-                ¡Gracias por probar NexusOS!
+                ¡Gracias por probar AETHEL OS!
               </p>
               <p className="text-sm text-[var(--text-mid)]">
                 Todos tus datos están guardados y listos. Activa ahora y continúa justo donde lo dejaste.

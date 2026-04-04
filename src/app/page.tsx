@@ -37,7 +37,7 @@ export default function OficinaCentral() {
     es: {
       heroTitle: 'Tu negocio,',
       heroHighlight: 'simplificado',
-      heroDesc: 'NexusOS es la plataforma de gestión empresarial diseñada para negocios del Caribe. Clínicas, salones de belleza, bufetes de abogados y más — todos desde un solo lugar.',
+      heroDesc: 'AETHEL OS es la plataforma de gestión empresarial diseñada para negocios del Caribe. Clínicas, salones de belleza, bufetes de abogados y más — todos desde un solo lugar.',
       exploreProducts: 'Explorar Productos',
       haveAccount: 'Ya tengo cuenta',
       login: 'Iniciar Sesión',
@@ -79,12 +79,12 @@ export default function OficinaCentral() {
       email: 'Email',
       password: 'Contraseña',
       deployedIn: 'Desplegado en',
-      copyright: '© 2024 NexusOS. Todos los derechos reservados. Hecho con ❤️ en Trinidad & Tobago 🇹🇹'
+      copyright: '© 2024 AETHEL OS. Todos los derechos reservados. Hecho con ❤️ en Trinidad & Tobago 🇹🇹'
     },
     en: {
       heroTitle: 'Your business,',
       heroHighlight: 'simplified',
-      heroDesc: 'NexusOS is the business management platform designed for Caribbean businesses. Clinics, beauty salons, law firms and more — all from one place.',
+      heroDesc: 'AETHEL OS is the business management platform designed for Caribbean businesses. Clinics, beauty salons, law firms and more — all from one place.',
       exploreProducts: 'Explore Products',
       haveAccount: 'I have an account',
       login: 'Log In',
@@ -126,7 +126,7 @@ export default function OficinaCentral() {
       email: 'Email',
       password: 'Password',
       deployedIn: 'Deployed in',
-      copyright: '© 2024 NexusOS. All rights reserved. Made with ❤️ in Trinidad & Tobago 🇹🇹'
+      copyright: '© 2024 AETHEL OS. All rights reserved. Made with ❤️ in Trinidad & Tobago 🇹🇹'
     }
   };
 
@@ -146,7 +146,7 @@ export default function OficinaCentral() {
             </div>
             <div>
               <h1 className={`text-xl font-bold transition-colors ${theme === 'dark' ? 'text-[#EDE9FE]' : 'text-gray-900'}`} style={{ fontFamily: 'var(--font-cormorant)' }}>
-                NexusOS
+                AETHEL OS
               </h1>
               <p className={`text-xs transition-colors ${theme === 'dark' ? 'text-[#9D7BEA]' : 'text-gray-500'}`}>
                 {language === 'es' ? 'Sistema de Gestión Empresarial' : 'Business Management System'}
@@ -456,7 +456,7 @@ export default function OficinaCentral() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6C3FCE] to-[#C026D3] flex items-center justify-center">
                   <Shield className="w-4 h-4 text-white" />
                 </div>
-                <span className={`font-bold transition-colors ${theme === 'dark' ? 'text-[#EDE9FE]' : 'text-gray-900'}`}>NexusOS</span>
+                <span className={`font-bold transition-colors ${theme === 'dark' ? 'text-[#EDE9FE]' : 'text-gray-900'}`}>AETHEL OS</span>
               </div>
               <p className={`text-sm transition-colors ${theme === 'dark' ? 'text-[#9D7BEA]' : 'text-gray-500'}`}>
                 {currentT.footerTag}

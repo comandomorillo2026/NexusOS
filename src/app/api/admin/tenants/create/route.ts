@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { sendTenantWelcomeEmail } from '@/lib/email/resend';
 
 const prisma = new PrismaClient();
 
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
       // Options
       sendWelcomeEmail,
       acceptTerms,
+      preferredLanguage,
     } = body;
 
     // Validate required fields
@@ -179,9 +181,11 @@ export async function POST(request: NextRequest) {
       where: { email: ownerEmail },
     });
 
+    let tempPassword = '';
+    
     if (!existingUser) {
       // Create a temporary password (they'll set their own via welcome email)
-      const tempPassword = Math.random().toString(36).slice(-12);
+      tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
       
       await prisma.systemUser.create({
         data: {
@@ -199,7 +203,7 @@ export async function POST(request: NextRequest) {
     await prisma.activityLog.create({
       data: {
         tenantId: tenant.id,
-        userEmail: 'admin@nexusos.tt',
+        userEmail: 'admin@aethel.tt',
         userName: 'System Admin',
         action: 'TENANT_CREATED',
         entityType: 'tenant',
@@ -208,7 +212,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send welcome email if sendWelcomeEmail is true
+    // Send welcome email if requested
+    let emailSent = false;
+    if (sendWelcomeEmail && tempPassword) {
+      const language = preferredLanguage || 'es';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://aethel.tt';
+      const loginUrl = `${appUrl}/login`;
+      
+      try {
+        const result = await sendTenantWelcomeEmail({
+          to: ownerEmail,
+          userName: ownerName,
+          businessName: businessName,
+          loginUrl: loginUrl,
+          email: ownerEmail,
+          tempPassword: tempPassword,
+          industry: industrySlug,
+          language: language as 'es' | 'en',
+        });
+        emailSent = result.success;
+        
+        if (!result.success) {
+          console.error('Failed to send welcome email:', result.error);
+        }
+      } catch (emailError) {
+        console.error('Error sending welcome email:', emailError);
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -222,7 +252,9 @@ export async function POST(request: NextRequest) {
         isTrial: tenant.isTrial,
         trialEndsAt: tenant.trialEndsAt,
         activatedAt: tenant.activatedAt,
+        preferredLanguage: preferredLanguage || 'es',
       },
+      emailSent,
     });
 
   } catch (error) {

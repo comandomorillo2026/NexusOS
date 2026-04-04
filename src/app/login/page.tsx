@@ -75,7 +75,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#6C3FCE] to-[#C026D3] flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-[#EDE9FE]">NexusOS</h1>
+          <h1 className="text-2xl font-bold text-[#EDE9FE]">AETHEL OS</h1>
           <p className="text-[#9D7BEA] text-sm mt-1">Acceso al Sistema</p>
         </div>
 

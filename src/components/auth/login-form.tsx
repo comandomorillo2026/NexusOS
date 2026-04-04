@@ -83,7 +83,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-[#EDE9FE]" style={{ fontFamily: 'var(--font-cormorant)' }}>
-            NexusOS
+            AETHEL OS
           </h1>
           <p className="text-[#9D7BEA] text-sm mt-1">Acceso al Sistema</p>
         </div>

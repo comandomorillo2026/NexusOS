@@ -67,7 +67,7 @@ export default function SetupPage() {
             <Database className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-[#EDE9FE] mb-2">
-            Configuración de NexusOS
+            Configuración de AETHEL OS
           </h1>
           <p className="text-[#9D7BEA]">
             Inicialización de la Base de Datos

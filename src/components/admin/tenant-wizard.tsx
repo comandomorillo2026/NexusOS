@@ -277,7 +277,7 @@ export function TenantWizard({ isOpen, onClose, leadData, onTenantCreated }: Ten
                   <div className="mt-4 space-y-2">
                     <Label className="text-[var(--text-mid)]">Slug / URL del Espacio</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-[var(--text-dim)] text-sm">nexusos.tt/</span>
+                      <span className="text-[var(--text-dim)] text-sm">aethel.tt/</span>
                       <Input
                         value={formData.slug}
                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
@@ -649,7 +649,7 @@ export function TenantWizard({ isOpen, onClose, leadData, onTenantCreated }: Ten
                     </div>
                     <div>
                       <span className="text-[var(--text-dim)]">URL:</span>
-                      <p className="text-[var(--nexus-violet-lite)]">{createdTenant.slug}.nexusos.tt</p>
+                      <p className="text-[var(--nexus-violet-lite)]">{createdTenant.slug}.aethel.tt</p>
                     </div>
                     <div>
                       <span className="text-[var(--text-dim)]">Plan:</span>

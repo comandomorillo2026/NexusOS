@@ -139,19 +139,29 @@ function CreateTenantWizard({ onClose, onSuccess }: { onClose: () => void; onSuc
   const handleCreate = async () => {
     setIsCreating(true);
     try {
-      const response = await fetch('/api/admin/tenants', {
+      // Generate slug from business name
+      const slug = formData.businessName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      const response = await fetch('/api/admin/tenants/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           businessName: formData.businessName,
           legalName: formData.businessName,
+          slug: slug,
           ownerName: formData.ownerName,
-          email: formData.email,
-          phone: formData.phone,
-          industry: formData.industry,
-          plan: formData.plan,
+          ownerEmail: formData.email,
+          ownerPhone: formData.phone,
+          industrySlug: formData.industry,
+          planSlug: formData.plan.toLowerCase(),
           billingCycle: formData.billingCycle,
-          notes: formData.notes
+          isTrial: true,
+          trialDays: 7,
+          sendWelcomeEmail: true,
+          acceptTerms: true
         })
       });
 
@@ -903,8 +913,8 @@ function PricingConfiguration() {
 // ============================================
 function SystemSettings() {
   const [settings, setSettings] = useState({
-    siteName: 'NexusOS',
-    supportEmail: 'soporte@nexusos.tt',
+    siteName: 'AETHEL OS',
+    supportEmail: 'soporte@aethel.tt',
     timezone: 'America/Port_of_Spain',
     language: 'es',
     maintenanceMode: false,

@@ -26,7 +26,7 @@ export function Footer() {
                 <span className="text-white font-bold text-lg">N</span>
               </div>
               <span className="text-xl font-bold text-gradient-violet" style={{ fontFamily: 'var(--font-cormorant)' }}>
-                NexusOS
+                AETHEL OS
               </span>
             </div>
             <p className="text-[var(--text-mid)] text-sm mb-4 leading-relaxed">

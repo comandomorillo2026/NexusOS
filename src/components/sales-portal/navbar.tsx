@@ -45,7 +45,7 @@ export function Navbar() {
               <span className="text-white font-bold text-lg">N</span>
             </div>
             <span className="text-xl font-bold text-gradient-violet" style={{ fontFamily: 'var(--font-cormorant)' }}>
-              NexusOS
+              AETHEL OS
             </span>
           </a>
 

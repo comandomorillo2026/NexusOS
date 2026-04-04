@@ -27,23 +27,23 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NexusOS — Tu Negocio Merece un Sistema Operativo",
-  description: "NexusOS le da a cada industria la infraestructura digital que las empresas del Fortune 500 pagan millones. Panaderías. Bufetes. Clínicas. Salones. En una plataforma.",
-  keywords: ["NexusOS", "SaaS", "Caribbean", "Trinidad", "Tobago", "Guyana", "business software", "ERP", "CRM"],
-  authors: [{ name: "NexusOS" }],
+  title: "AETHEL OS — Tu Negocio Merece un Sistema Operativo",
+  description: "AETHEL OS le da a cada industria la infraestructura digital que las empresas del Fortune 500 pagan millones. Panaderías. Bufetes. Clínicas. Salones. En una plataforma.",
+  keywords: ["AETHEL OS", "AETHEL", "SaaS", "Caribbean", "Trinidad", "Tobago", "Guyana", "business software", "ERP", "CRM"],
+  authors: [{ name: "AETHEL OS" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "NexusOS — Tu Negocio Merece un Sistema Operativo",
+    title: "AETHEL OS — Tu Negocio Merece un Sistema Operativo",
     description: "Infraestructura digital para empresas del Caribe",
-    url: "https://nexusos.tt",
-    siteName: "NexusOS",
+    url: "https://aethel.tt",
+    siteName: "AETHEL OS",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NexusOS",
+    title: "AETHEL OS",
     description: "Infraestructura digital para empresas del Caribe",
   },
 };
