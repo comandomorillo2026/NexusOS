@@ -59,6 +59,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { CapacityMetrics } from './capacity-metrics';
+import { SecurityInfo } from './security-info';
 import { AIAssistant, AIAssistantButton } from './ai-assistant';
 import { ScalabilityPlan } from './scalability-plan';
 import { CompetitiveAnalysis } from './competitive-analysis';
@@ -1450,6 +1451,9 @@ function DashboardOverview() {
 
       {/* Capacity Metrics */}
       <CapacityMetrics />
+
+      {/* Security Info */}
+      <SecurityInfo />
     </div>
   );
 }
