@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model Account {
@@ -20,7 +21,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  SystemUser        SystemUser @relation(fields: [userId], references: [id])
+  SystemUser        SystemUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -86,7 +87,7 @@ model Appointment {
   cancellationReason String?
   createdAt          DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  Patient            Patient  @relation(fields: [patientId], references: [id])
+  Patient            Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([date])
@@ -167,9 +168,9 @@ model BeautyAppointment {
   source               String        @default("desk")
   createdAt            DateTime      @default(now())
   updatedAt      DateTime @updatedAt
-  BeautyBranch         BeautyBranch? @relation(fields: [branchId], references: [id])
-  BeautyStaff          BeautyStaff?  @relation(fields: [staffId], references: [id])
-  BeautyClient         BeautyClient? @relation(fields: [clientId], references: [id])
+  BeautyBranch         BeautyBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  BeautyStaff          BeautyStaff?  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  BeautyClient         BeautyClient? @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([staffId])
   @@index([clientId])
@@ -236,7 +237,7 @@ model BeautyCashRegister {
   notes            String?
   createdAt        DateTime      @default(now())
   updatedAt      DateTime @updatedAt
-  BeautyBranch     BeautyBranch? @relation(fields: [branchId], references: [id])
+  BeautyBranch     BeautyBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([branchId])
@@ -323,8 +324,8 @@ model BeautyClientMembership {
   cancellationReason String?
   createdAt          DateTime         @default(now())
   updatedAt      DateTime @updatedAt
-  BeautyMembership   BeautyMembership @relation(fields: [membershipId], references: [id])
-  BeautyClient       BeautyClient     @relation(fields: [clientId], references: [id])
+  BeautyMembership   BeautyMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  BeautyClient       BeautyClient     @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([membershipId])
@@ -352,8 +353,8 @@ model BeautyCommission {
   notes            String?
   createdAt        DateTime    @default(now())
   updatedAt      DateTime @updatedAt
-  BeautySale       BeautySale? @relation(fields: [saleId], references: [id])
-  BeautyStaff      BeautyStaff @relation(fields: [staffId], references: [id])
+  BeautySale       BeautySale? @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  BeautyStaff      BeautyStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   @@index([periodStart])
   @@index([status])
@@ -392,7 +393,7 @@ model BeautyExpense {
   approvedAt       String?
   createdAt        DateTime      @default(now())
   updatedAt      DateTime @updatedAt
-  BeautyBranch     BeautyBranch? @relation(fields: [branchId], references: [id])
+  BeautyBranch     BeautyBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([expenseDate])
@@ -508,7 +509,7 @@ model BeautyProductTransaction {
   reference     String?
   performedBy   String?
   createdAt     DateTime      @default(now())
-  BeautyProduct BeautyProduct @relation(fields: [productId], references: [id])
+  BeautyProduct BeautyProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([type])
   @@index([productId])
@@ -546,9 +547,9 @@ model BeautySale {
   createdAt        DateTime           @default(now())
   updatedAt      DateTime @updatedAt
   BeautyCommission BeautyCommission[]
-  BeautyBranch     BeautyBranch?      @relation(fields: [branchId], references: [id])
-  BeautyStaff      BeautyStaff?       @relation(fields: [staffId], references: [id])
-  BeautyClient     BeautyClient?      @relation(fields: [clientId], references: [id])
+  BeautyBranch     BeautyBranch?      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  BeautyStaff      BeautyStaff?       @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  BeautyClient     BeautyClient?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([saleNumber])
@@ -573,8 +574,8 @@ model BeautySaleItem {
   productId        String?
   productSku       String?
   createdAt        DateTime       @default(now())
-  BeautyProduct    BeautyProduct? @relation(fields: [productId], references: [id])
-  BeautyService    BeautyService? @relation(fields: [itemId], references: [id])
+  BeautyProduct    BeautyProduct? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  BeautyService    BeautyService? @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemType])
   @@index([saleId])
@@ -699,7 +700,7 @@ model BeautyStaff {
   BeautyAppointment   BeautyAppointment[]
   BeautyCommission    BeautyCommission[]
   BeautySale          BeautySale[]
-  BeautyBranch        BeautyBranch?         @relation(fields: [branchId], references: [id])
+  BeautyBranch        BeautyBranch?         @relation(fields: [branchId], references: [id], onDelete: Cascade)
   BeautyStaffSchedule BeautyStaffSchedule[]
 
   @@index([isActive])
@@ -721,7 +722,7 @@ model BeautyStaffSchedule {
   notes       String?
   createdAt   DateTime    @default(now())
   updatedAt      DateTime @updatedAt
-  BeautyStaff BeautyStaff @relation(fields: [staffId], references: [id])
+  BeautyStaff BeautyStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   @@index([date])
   @@index([staffId])
@@ -867,7 +868,7 @@ model InventoryTransaction {
   reference     String?
   performedBy   String?
   createdAt     DateTime      @default(now())
-  InventoryItem InventoryItem @relation(fields: [itemId], references: [id])
+  InventoryItem InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
   @@index([tenantId])
@@ -897,7 +898,7 @@ model Invoice {
   appointmentId    String?
   createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  Patient          Patient? @relation(fields: [patientId], references: [id])
+  Patient          Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([invoiceNumber])
@@ -998,7 +999,7 @@ model LawCalendarEvent {
   notes            String?
   createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  LawCase          LawCase? @relation(fields: [caseId], references: [id])
+  LawCase          LawCase? @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([eventType])
@@ -1049,7 +1050,7 @@ model LawCase {
   createdAt            DateTime              @default(now())
   updatedAt      DateTime @updatedAt
   LawCalendarEvent     LawCalendarEvent[]
-  LawClient            LawClient             @relation(fields: [clientId], references: [id])
+  LawClient            LawClient             @relation(fields: [clientId], references: [id], onDelete: Cascade)
   LawDocument          LawDocument[]
   LawInvoice           LawInvoice[]
   LawTask              LawTask[]
@@ -1134,7 +1135,7 @@ model LawDocument {
   isDeleted         Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  LawCase           LawCase? @relation(fields: [caseId], references: [id])
+  LawCase           LawCase? @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([isTemplate])
   @@index([category])
@@ -1186,7 +1187,7 @@ model LawInvoice {
   notes            String?
   createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  LawCase          LawCase? @relation(fields: [caseId], references: [id])
+  LawCase          LawCase? @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([issueDate])
   @@index([status])
@@ -1276,7 +1277,7 @@ model LawTask {
   notes            String?
   createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  LawCase          LawCase? @relation(fields: [caseId], references: [id])
+  LawCase          LawCase? @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([assignedToId])
   @@index([dueDate])
@@ -1306,8 +1307,8 @@ model LawTimeEntry {
   notes           String?
   createdAt       DateTime    @default(now())
   updatedAt      DateTime @updatedAt
-  LawAttorney     LawAttorney @relation(fields: [attorneyId], references: [id])
-  LawCase         LawCase     @relation(fields: [caseId], references: [id])
+  LawAttorney     LawAttorney @relation(fields: [attorneyId], references: [id], onDelete: Cascade)
+  LawCase         LawCase     @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([isBilled])
   @@index([date])
@@ -1328,7 +1329,7 @@ model LawTrustAccount {
   notes               String?
   createdAt           DateTime              @default(now())
   updatedAt      DateTime @updatedAt
-  LawClient           LawClient             @relation(fields: [clientId], references: [id])
+  LawClient           LawClient             @relation(fields: [clientId], references: [id], onDelete: Cascade)
   LawTrustTransaction LawTrustTransaction[]
 
   @@index([clientId])
@@ -1355,8 +1356,8 @@ model LawTrustTransaction {
   notes             String?
   createdAt         DateTime        @default(now())
   updatedAt      DateTime @updatedAt
-  LawCase           LawCase?        @relation(fields: [caseId], references: [id])
-  LawTrustAccount   LawTrustAccount @relation(fields: [trustAccountId], references: [id])
+  LawCase           LawCase?        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  LawTrustAccount   LawTrustAccount @relation(fields: [trustAccountId], references: [id], onDelete: Cascade)
 
   @@index([type])
   @@index([transactionDate])
@@ -1414,7 +1415,7 @@ model MedicalRecord {
   providerName     String?
   createdAt        DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  Patient          Patient  @relation(fields: [patientId], references: [id])
+  Patient          Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([tenantId])
@@ -1442,8 +1443,8 @@ model MedicationAdministration {
   verifiedBy         String?
   verifiedAt         String?
   createdAt          DateTime      @default(now())
-  Prescription       Prescription? @relation(fields: [prescriptionId], references: [id])
-  NurseStaff         NurseStaff    @relation(fields: [nurseId], references: [id])
+  Prescription       Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  NurseStaff         NurseStaff    @relation(fields: [nurseId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([administeredAt])
@@ -1479,8 +1480,8 @@ model NurseShiftAssignment {
   notes            String?
   createdAt        DateTime   @default(now())
   updatedAt      DateTime @updatedAt
-  NurseShift       NurseShift @relation(fields: [shiftId], references: [id])
-  NurseStaff       NurseStaff @relation(fields: [nurseId], references: [id])
+  NurseShift       NurseShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  NurseStaff       NurseStaff @relation(fields: [nurseId], references: [id], onDelete: Cascade)
 
   @@index([nurseId])
   @@index([date])
@@ -1541,7 +1542,7 @@ model NurseTask {
   notes             String?
   createdAt         DateTime    @default(now())
   updatedAt      DateTime @updatedAt
-  NurseStaff        NurseStaff? @relation(fields: [assignedToNurseId], references: [id])
+  NurseStaff        NurseStaff? @relation(fields: [assignedToNurseId], references: [id], onDelete: Cascade)
 
   @@index([category])
   @@index([dueDate])
@@ -1596,7 +1597,7 @@ model NursingNote {
   tags           String?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime @updatedAt
-  NurseStaff     NurseStaff @relation(fields: [nurseId], references: [id])
+  NurseStaff     NurseStaff @relation(fields: [nurseId], references: [id], onDelete: Cascade)
 
   @@index([noteType])
   @@index([patientId])
@@ -1675,7 +1676,7 @@ model PatientDocument {
   tags         String?
   documentDate String?
   createdAt    DateTime @default(now())
-  Patient      Patient  @relation(fields: [patientId], references: [id])
+  Patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([tenantId])
@@ -1700,7 +1701,7 @@ model PaymentVerification {
   isDeleted          Boolean    @default(false)
   createdAt          DateTime   @default(now())
   updatedAt      DateTime @updatedAt
-  SalesOrder         SalesOrder @relation(fields: [salesOrderId], references: [id])
+  SalesOrder         SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
 
   @@index([salesOrderId])
   @@index([status])
@@ -1800,7 +1801,7 @@ model ProvisioningJob {
   isDeleted           Boolean    @default(false)
   createdAt           DateTime   @default(now())
   updatedAt      DateTime @updatedAt
-  SalesOrder          SalesOrder @relation(fields: [salesOrderId], references: [id])
+  SalesOrder          SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
 
   @@index([salesOrderId])
   @@index([status])
@@ -1848,7 +1849,7 @@ model SalesAuditLog {
   userAgent        String?
   metadata         String?
   createdAt        DateTime    @default(now())
-  SalesOrder       SalesOrder? @relation(fields: [salesOrderId], references: [id])
+  SalesOrder       SalesOrder? @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([action])
@@ -1932,7 +1933,7 @@ model Session {
   sessionToken String     @unique
   userId       String
   expires      DateTime
-  SystemUser   SystemUser @relation(fields: [userId], references: [id])
+  SystemUser   SystemUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -2057,7 +2058,7 @@ model TenantSubscription {
   notes                   String?
   createdAt               DateTime         @default(now())
   updatedAt      DateTime @updatedAt
-  Tenant                  Tenant           @relation(fields: [tenantId], references: [id])
+  Tenant                  Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   TenantInvoice           TenantInvoice[]
 
   @@index([status])
@@ -2090,7 +2091,7 @@ model TenantInvoice {
   reminderSentAt          String?
   createdAt               DateTime         @default(now())
   updatedAt      DateTime @updatedAt
-  TenantSubscription      TenantSubscription @relation(fields: [subscriptionId], references: [id])
+  TenantSubscription      TenantSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([tenantId])
@@ -2113,7 +2114,7 @@ model TermsAcceptance {
   acceptedDuring        String            @default("registration") // registration, login, checkout
   pdfUrl                String?           // Copy of terms at time of acceptance
   createdAt             DateTime          @default(now())
-  Tenant                Tenant            @relation(fields: [tenantId], references: [id])
+  Tenant                Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([userEmail])
@@ -2173,7 +2174,7 @@ model VitalSignsLog {
   alertTriggered         Boolean     @default(false)
   alertReason            String?
   createdAt              DateTime    @default(now())
-  NurseStaff             NurseStaff? @relation(fields: [nurseId], references: [id])
+  NurseStaff             NurseStaff? @relation(fields: [nurseId], references: [id], onDelete: Cascade)
 
   @@index([recordedAt])
   @@index([patientId])
