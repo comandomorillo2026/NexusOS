@@ -42,7 +42,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           onSuccess();
         } else {
           // Determine redirect based on email
-          if (email === 'admin@nexusos.tt') {
+          if (email === 'admin@aethel.tt' || email.includes('admin')) {
             router.push('/admin');
           } else if (email.includes('clinic')) {
             router.push('/clinic');
@@ -52,6 +52,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             router.push('/beauty');
           } else if (email.includes('nurse')) {
             router.push('/nurse');
+          } else if (email.includes('bakery')) {
+            router.push('/bakery');
           } else {
             router.push('/clinic');
           }
@@ -149,6 +151,16 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 'Iniciar Sesión'
               )}
             </button>
+
+            {/* Forgot Password Link */}
+            <div className="text-center">
+              <a
+                href="/forgot-password"
+                className="text-sm text-[#9D7BEA] hover:text-[#EDE9FE] transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
           </form>
 
           {/* Demo credentials */}
@@ -157,31 +169,31 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => { setEmail('admin@nexusos.tt'); setPassword('admin123'); }}
+                onClick={() => { setEmail('admin@aethel.tt'); setPassword('admin123'); }}
                 className="w-full text-left p-2 rounded bg-[rgba(108,63,206,0.1)] text-[#9D7BEA] hover:bg-[rgba(108,63,206,0.2)] text-sm transition-colors"
               >
-                👑 Admin: admin@nexusos.tt / admin123
+                👑 Admin: admin@aethel.tt / admin123
               </button>
               <button
                 type="button"
-                onClick={() => { setEmail('clinic@demo.tt'); setPassword('demo123'); }}
+                onClick={() => { setEmail('clinic@aethel.tt'); setPassword('demo123'); }}
                 className="w-full text-left p-2 rounded bg-[rgba(108,63,206,0.1)] text-[#9D7BEA] hover:bg-[rgba(108,63,206,0.2)] text-sm transition-colors"
               >
-                🏥 Clínica: clinic@demo.tt / demo123
+                🏥 Clínica: clinic@aethel.tt / demo123
               </button>
               <button
                 type="button"
-                onClick={() => { setEmail('lawfirm@demo.tt'); setPassword('demo123'); }}
+                onClick={() => { setEmail('lawfirm@aethel.tt'); setPassword('demo123'); }}
                 className="w-full text-left p-2 rounded bg-[rgba(108,63,206,0.1)] text-[#9D7BEA] hover:bg-[rgba(108,63,206,0.2)] text-sm transition-colors"
               >
-                ⚖️ Bufete: lawfirm@demo.tt / demo123
+                ⚖️ Bufete: lawfirm@aethel.tt / demo123
               </button>
               <button
                 type="button"
-                onClick={() => { setEmail('beauty@demo.tt'); setPassword('demo123'); }}
+                onClick={() => { setEmail('beauty@aethel.tt'); setPassword('demo123'); }}
                 className="w-full text-left p-2 rounded bg-[rgba(108,63,206,0.1)] text-[#9D7BEA] hover:bg-[rgba(108,63,206,0.2)] text-sm transition-colors"
               >
-                💇 Salón: beauty@demo.tt / demo123
+                💇 Salón: beauty@aethel.tt / demo123
               </button>
             </div>
           </div>

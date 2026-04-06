@@ -58,13 +58,14 @@ export async function GET() {
           users
         },
         login_test: {
-          url: 'https://nexus-os-alpha.vercel.app/login',
+          url: 'https://aethel-os.vercel.app/login',
           credentials: {
-            admin: { email: 'admin@nexusos.tt', password: 'admin123' },
-            clinic: { email: 'clinic@demo.tt', password: 'demo123' },
-            beauty: { email: 'beauty@demo.tt', password: 'demo123' },
-            lawfirm: { email: 'lawfirm@demo.tt', password: 'demo123' },
-            nurse: { email: 'nurse@demo.tt', password: 'demo123' },
+            admin: { email: 'admin@aethel.tt', password: 'admin123' },
+            clinic: { email: 'clinic@aethel.tt', password: 'demo123' },
+            beauty: { email: 'beauty@aethel.tt', password: 'demo123' },
+            lawfirm: { email: 'lawfirm@aethel.tt', password: 'demo123' },
+            nurse: { email: 'nurse@aethel.tt', password: 'demo123' },
+            bakery: { email: 'bakery@aethel.tt', password: 'demo123' },
           }
         },
         nextauth_config: {
@@ -209,14 +210,14 @@ export async function GET() {
     await db.systemUser.create({
       data: {
         id: randomUUID(),
-        email: 'admin@nexusos.tt',
+        email: 'admin@aethel.tt',
         name: 'Super Admin',
         passwordHash: adminPasswordHash,
         role: 'SUPER_ADMIN',
         isActive: true,
       },
     });
-    console.log('[SEED] Created SUPER_ADMIN: admin@nexusos.tt');
+    console.log('[SEED] Created SUPER_ADMIN: admin@aethel.tt');
 
     // Crear tenant clínica
     const clinicTenant = await db.tenant.create({
@@ -227,7 +228,7 @@ export async function GET() {
         legalName: 'Clínica San Fernando S.A.',
         industrySlug: 'clinic',
         ownerName: 'Dr. Juan Martínez',
-        ownerEmail: 'clinic@demo.tt',
+        ownerEmail: 'clinic@aethel.tt',
         ownerPhone: '+1 868 123 4567',
         planSlug: 'growth',
         billingCycle: 'monthly',
@@ -241,7 +242,7 @@ export async function GET() {
     await db.systemUser.create({
       data: {
         id: randomUUID(),
-        email: 'clinic@demo.tt',
+        email: 'clinic@aethel.tt',
         name: 'Dr. Juan Martínez',
         passwordHash: demoPasswordHash,
         role: 'TENANT_ADMIN',
@@ -249,7 +250,7 @@ export async function GET() {
         isActive: true,
       },
     });
-    console.log('[SEED] Created TENANT_ADMIN: clinic@demo.tt');
+    console.log('[SEED] Created TENANT_ADMIN: clinic@aethel.tt');
 
     // Crear tenant beauty
     const beautyTenant = await db.tenant.create({
@@ -260,7 +261,7 @@ export async function GET() {
         legalName: 'Salón Bella Vista',
         industrySlug: 'beauty',
         ownerName: 'María López',
-        ownerEmail: 'beauty@demo.tt',
+        ownerEmail: 'beauty@aethel.tt',
         ownerPhone: '+1 868 555 1234',
         planSlug: 'growth',
         billingCycle: 'monthly',
@@ -274,7 +275,7 @@ export async function GET() {
     await db.systemUser.create({
       data: {
         id: randomUUID(),
-        email: 'beauty@demo.tt',
+        email: 'beauty@aethel.tt',
         name: 'María López',
         passwordHash: demoPasswordHash,
         role: 'TENANT_ADMIN',
@@ -282,7 +283,7 @@ export async function GET() {
         isActive: true,
       },
     });
-    console.log('[SEED] Created TENANT_ADMIN: beauty@demo.tt');
+    console.log('[SEED] Created TENANT_ADMIN: beauty@aethel.tt');
 
     // Crear tenant lawfirm
     const lawfirmTenant = await db.tenant.create({
@@ -293,7 +294,7 @@ export async function GET() {
         legalName: 'Bufete Pérez & Asociados',
         industrySlug: 'lawfirm',
         ownerName: 'Carlos Pérez',
-        ownerEmail: 'lawfirm@demo.tt',
+        ownerEmail: 'lawfirm@aethel.tt',
         ownerPhone: '+1 868 555 5678',
         planSlug: 'premium',
         billingCycle: 'monthly',
@@ -307,7 +308,7 @@ export async function GET() {
     await db.systemUser.create({
       data: {
         id: randomUUID(),
-        email: 'lawfirm@demo.tt',
+        email: 'lawfirm@aethel.tt',
         name: 'Carlos Pérez',
         passwordHash: demoPasswordHash,
         role: 'TENANT_ADMIN',
@@ -315,7 +316,7 @@ export async function GET() {
         isActive: true,
       },
     });
-    console.log('[SEED] Created TENANT_ADMIN: lawfirm@demo.tt');
+    console.log('[SEED] Created TENANT_ADMIN: lawfirm@aethel.tt');
 
     // Crear tenant nurse
     const nurseTenant = await db.tenant.create({
@@ -326,7 +327,7 @@ export async function GET() {
         legalName: 'Enfermería Cuidados del Hogar',
         industrySlug: 'nurse',
         ownerName: 'Ana Rodríguez',
-        ownerEmail: 'nurse@demo.tt',
+        ownerEmail: 'nurse@aethel.tt',
         ownerPhone: '+1 868 555 9999',
         planSlug: 'starter',
         billingCycle: 'monthly',
@@ -340,7 +341,7 @@ export async function GET() {
     await db.systemUser.create({
       data: {
         id: randomUUID(),
-        email: 'nurse@demo.tt',
+        email: 'nurse@aethel.tt',
         name: 'Ana Rodríguez',
         passwordHash: demoPasswordHash,
         role: 'TENANT_ADMIN',
@@ -348,7 +349,40 @@ export async function GET() {
         isActive: true,
       },
     });
-    console.log('[SEED] Created TENANT_ADMIN: nurse@demo.tt');
+    console.log('[SEED] Created TENANT_ADMIN: nurse@aethel.tt');
+
+    // Crear tenant bakery
+    const bakeryTenant = await db.tenant.create({
+      data: {
+        id: randomUUID(),
+        slug: 'panaderia-demo',
+        businessName: 'Panadería El Buen Pan',
+        legalName: 'Panadería El Buen Pan C.A.',
+        industrySlug: 'bakery',
+        ownerName: 'Pedro Gómez',
+        ownerEmail: 'bakery@aethel.tt',
+        ownerPhone: '+1 868 555 7777',
+        planSlug: 'growth',
+        billingCycle: 'monthly',
+        status: 'active',
+        activatedAt: new Date().toISOString(),
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    });
+
+    await db.systemUser.create({
+      data: {
+        id: randomUUID(),
+        email: 'bakery@aethel.tt',
+        name: 'Pedro Gómez',
+        passwordHash: demoPasswordHash,
+        role: 'TENANT_ADMIN',
+        tenantId: bakeryTenant.id,
+        isActive: true,
+      },
+    });
+    console.log('[SEED] Created TENANT_ADMIN: bakery@aethel.tt');
 
     console.log('[SEED] ✅ Database initialization complete!');
 
@@ -366,11 +400,12 @@ export async function GET() {
         }
       },
       login_credentials: {
-        admin: { email: 'admin@nexusos.tt', password: 'admin123' },
-        clinic: { email: 'clinic@demo.tt', password: 'demo123' },
-        beauty: { email: 'beauty@demo.tt', password: 'demo123' },
-        lawfirm: { email: 'lawfirm@demo.tt', password: 'demo123' },
-        nurse: { email: 'nurse@demo.tt', password: 'demo123' },
+        admin: { email: 'admin@aethel.tt', password: 'admin123' },
+        clinic: { email: 'clinic@aethel.tt', password: 'demo123' },
+        beauty: { email: 'beauty@aethel.tt', password: 'demo123' },
+        lawfirm: { email: 'lawfirm@aethel.tt', password: 'demo123' },
+        nurse: { email: 'nurse@aethel.tt', password: 'demo123' },
+        bakery: { email: 'bakery@aethel.tt', password: 'demo123' },
       }
     });
   } catch (error) {

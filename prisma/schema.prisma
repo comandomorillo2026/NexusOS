@@ -1996,6 +1996,7 @@ model SystemUser {
   updatedAt      DateTime @updatedAt
   Account           Account[]
   Session           Session[]
+  PasswordResetTokens PasswordResetToken[]
 
   @@index([tenantId])
   @@index([email])
@@ -3022,4 +3023,23 @@ model MigrationRollbackRecord {
   @@index([migrationId])
   @@index([entityType])
   @@index([entityId])
+}
+
+// ============================================
+// PASSWORD RESET SYSTEM
+// ============================================
+
+model PasswordResetToken {
+  id          String   @id @default(cuid())
+  userId      String
+  token       String   @unique
+  expiresAt   String
+  usedAt      String?
+  createdAt   DateTime @default(now())
+  
+  SystemUser  SystemUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
 }
