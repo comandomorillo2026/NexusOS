@@ -2,7 +2,26 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
-export async function GET() {
+// Security: Only allow in development or with proper authentication
+function isAllowed(request: Request): boolean {
+  // Allow in development
+  if (process.env.NODE_ENV === 'development') return true;
+
+  // In production, require a secret header
+  const authHeader = request.headers.get('x-diagnostic-secret');
+  const expectedSecret = process.env.DIAGNOSTIC_SECRET || 'aethel-diagnostic-2024';
+  return authHeader === expectedSecret;
+}
+
+export async function GET(request: Request) {
+  // Security check
+  if (!isAllowed(request)) {
+    return NextResponse.json({
+      error: 'Unauthorized',
+      message: 'Diagnostic endpoint requires authentication in production',
+    }, { status: 401 });
+  }
+
   try {
     const startTime = Date.now();
 
@@ -11,12 +30,8 @@ export async function GET() {
       // Database
       DATABASE_URL: {
         set: !!process.env.DATABASE_URL,
-        prefix: process.env.DATABASE_URL?.substring(0, 30) + '...',
+        isSupabase: process.env.DATABASE_URL?.includes('supabase') || false,
         isNeon: process.env.DATABASE_URL?.includes('neon.tech') || false,
-      },
-      DIRECT_DATABASE_URL: {
-        set: !!process.env.DIRECT_DATABASE_URL,
-        isNeon: process.env.DIRECT_DATABASE_URL?.includes('neon.tech') || false,
       },
 
       // Auth
@@ -27,7 +42,15 @@ export async function GET() {
       NEXTAUTH_URL: {
         set: !!process.env.NEXTAUTH_URL,
         value: process.env.NEXTAUTH_URL || 'NOT SET',
-        isProduction: process.env.NEXTAUTH_URL?.includes('vercel.app') || false,
+      },
+
+      // Email
+      RESEND_API_KEY: {
+        set: !!process.env.RESEND_API_KEY,
+        configured: process.env.RESEND_API_KEY?.startsWith('re_') || false,
+      },
+      EMAIL_FROM: {
+        set: !!process.env.EMAIL_FROM,
       },
 
       // Runtime
@@ -38,15 +61,12 @@ export async function GET() {
 
     // Test database connection
     let dbStatus = { connected: false, error: null as string | null };
-    let users: Array<{ email: string; role: string; isActive: boolean }> = [];
+    let userCount = 0;
 
     try {
       await db.$queryRaw`SELECT 1`;
       dbStatus.connected = true;
-
-      users = await db.systemUser.findMany({
-        select: { email: true, role: true, isActive: true },
-      });
+      userCount = await db.systemUser.count();
     } catch (dbError) {
       dbStatus.error = dbError instanceof Error ? dbError.message : 'Unknown DB error';
     }
@@ -61,14 +81,13 @@ export async function GET() {
       bcryptStatus.error = bcryptError instanceof Error ? bcryptError.message : 'Unknown bcrypt error';
     }
 
-    // Get admin user details
+    // Get admin user details (AETHEL)
     const adminUser = await db.systemUser.findUnique({
-      where: { email: 'admin@nexusos.tt' },
+      where: { email: 'admin@aethel.tt' },
       select: {
         email: true,
         role: true,
         isActive: true,
-        passwordHash: true,
         createdAt: true,
       },
     });
@@ -85,12 +104,7 @@ export async function GET() {
       database: {
         status: dbStatus.connected ? 'connected' : 'error',
         error: dbStatus.error,
-        totalUsers: users.length,
-        users: users.map(u => ({
-          email: u.email,
-          role: u.role,
-          active: u.isActive,
-        })),
+        totalUsers: userCount,
       },
 
       adminUser: adminUser ? {
@@ -98,31 +112,33 @@ export async function GET() {
         email: adminUser.email,
         role: adminUser.role,
         isActive: adminUser.isActive,
-        hasPassword: !!adminUser.passwordHash,
-        hashPrefix: adminUser.passwordHash?.substring(0, 7) + '...',
-        hashFormat: adminUser.passwordHash?.startsWith('$2b$') ? 'bcrypt' : 'unknown',
-        hashRounds: adminUser.passwordHash?.split('$')[2] || 'unknown',
       } : { exists: false },
 
       bcrypt: bcryptStatus,
 
-      nextAuthConfig: {
-        sessionStrategy: 'jwt',
-        providers: ['credentials'],
-        signInPage: '/login',
+      system: {
+        name: 'AETHEL OS',
+        version: '1.0.0',
+        branding: 'AETHEL',
       },
     });
   } catch (error) {
     return NextResponse.json({
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined,
     }, { status: 500 });
   }
 }
 
 // POST endpoint to test authentication directly
 export async function POST(request: Request) {
+  // Security check
+  if (!isAllowed(request)) {
+    return NextResponse.json({
+      error: 'Unauthorized',
+    }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -143,7 +159,6 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: false,
         error: 'User not found',
-        email,
       }, { status: 401 });
     }
 
@@ -151,7 +166,6 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: false,
         error: 'User is not active',
-        email,
       }, { status: 401 });
     }
 
@@ -166,12 +180,6 @@ export async function POST(request: Request) {
         name: user.name,
         role: user.role,
         isActive: user.isActive,
-        tenantId: user.tenantId,
-      },
-      debug: {
-        hashPrefix: user.passwordHash.substring(0, 10) + '...',
-        providedPasswordLength: password.length,
-        storedHashLength: user.passwordHash.length,
       },
     });
   } catch (error) {
