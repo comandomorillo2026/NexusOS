@@ -26,6 +26,7 @@ import {
   Moon,
   Database,
   Radio,
+  FileText,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -44,6 +45,7 @@ export function AdminLayout({ children, activeTab = 'dashboard' }: AdminLayoutPr
     { id: 'orders', label: 'Órdenes', icon: CreditCard },
     { id: 'tenants', label: 'Inquilinos', icon: Building2 },
     { id: 'industries', label: 'Industrias', icon: Globe },
+    { id: 'documents', label: 'Documentos', icon: FileText },
     { id: 'competitive', label: 'Análisis Competitivo', icon: Target },
     { id: 'scalability', label: 'Escalabilidad', icon: TrendingUp },
     { id: 'database', label: 'Base de Datos', icon: Database },
@@ -78,7 +80,7 @@ export function AdminLayout({ children, activeTab = 'dashboard' }: AdminLayoutPr
               </div>
               <div>
                 <h1 className="font-bold text-foreground" style={{ fontFamily: 'var(--font-cormorant)' }}>
-                  NexusOS
+                  AETHEL OS
                 </h1>
                 <p className="text-xs text-[var(--nexus-gold)]">Torre de Control</p>
               </div>

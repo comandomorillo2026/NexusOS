@@ -39,7 +39,7 @@ import {
 
 interface CompetitorFeature {
   name: string;
-  nexusos: boolean | string;
+  aethel: boolean | string;
   competitors: { [key: string]: boolean | string };
   highlight?: boolean;
 }
@@ -55,7 +55,7 @@ interface IndustryData {
   usps: string[];
   missing: string[];
   quickFacts: { label: string; value: string; highlight?: boolean }[];
-  nexusosPrice: string;
+  aethelPrice: string;
   priceComparison: { name: string; price: string; features: number; color: string }[];
 }
 
@@ -72,17 +72,17 @@ const industriesData: IndustryData[] = [
     description: 'Gestión completa para panaderías y pastelerías del Caribe',
     competitors: ['Square', 'Toast', 'Cybake'],
     features: [
-      { name: 'POS con offline', nexusos: true, competitors: { 'Square': true, 'Toast': true, 'Cybake': false } },
-      { name: 'Recetas integradas', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
-      { name: 'IA especializada', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
-      { name: 'WiPay/Artim', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
-      { name: 'WhatsApp integrado', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
-      { name: 'Producción diaria', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
-      { name: 'Pedidos personalizados', nexusos: true, competitors: { 'Square': true, 'Toast': true, 'Cybake': true } },
-      { name: 'Inventario con recetas', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
-      { name: 'Facturación TT$', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
-      { name: 'Precio/mes', nexusos: 'TT$900', competitors: { 'Square': '$60+', 'Toast': '$165+', 'Cybake': '$150+' } },
+      { name: 'POS con offline', aethel: true, competitors: { 'Square': true, 'Toast': true, 'Cybake': false } },
+      { name: 'Recetas integradas', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
+      { name: 'IA especializada', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
+      { name: 'WiPay/Artim', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
+      { name: 'WhatsApp integrado', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
+      { name: 'Producción diaria', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
+      { name: 'Pedidos personalizados', aethel: true, competitors: { 'Square': true, 'Toast': true, 'Cybake': true } },
+      { name: 'Inventario con recetas', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
+      { name: 'Facturación TT$', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': false }, highlight: true },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Square': false, 'Toast': false, 'Cybake': true } },
+      { name: 'Precio/mes', aethel: 'TT$900', competitors: { 'Square': '$60+', 'Toast': '$165+', 'Cybake': '$150+' } },
     ],
     usps: [
       'Único con IA especializada para panaderías del Caribe',
@@ -103,9 +103,9 @@ const industriesData: IndustryData[] = [
       { label: 'Pagos locales', value: 'WiPay, Artim, transferencias' },
       { label: 'Soporte 24/7', value: 'en español', highlight: true },
     ],
-    nexusosPrice: 'TT$900',
+    aethelPrice: 'TT$900',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$900', features: 10, color: '#F97316' },
+      { name: 'AETHEL OS', price: 'TT$900', features: 10, color: '#F97316' },
       { name: 'Square', price: '~TT$408', features: 4, color: '#3B82F6' },
       { name: 'Toast', price: '~TT$1,122', features: 3, color: '#EF4444' },
       { name: 'Cybake', price: '~TT$1,020', features: 4, color: '#8B5CF6' },
@@ -119,18 +119,18 @@ const industriesData: IndustryData[] = [
     description: 'Sistema integral para clínicas y centros médicos',
     competitors: ['Athenahealth', 'DrChrono', ' Kareo'],
     features: [
-      { name: 'Multi-proveedor', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
-      { name: 'Citas online', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
-      { name: 'Portal de pacientes', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': false }, highlight: true },
-      { name: 'Historial médico', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
-      { name: 'Recetas digitales', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': false } },
-      { name: 'Laboratorio integrado', nexusos: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
-      { name: 'Portal de enfermería', nexusos: true, competitors: { 'Athenahealth': true, 'DrChrono': false, 'Kareo': false }, highlight: true },
-      { name: 'IA diagnóstica', nexusos: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
-      { name: 'WiPay/Artim', nexusos: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
-      { name: 'WhatsApp reminders', nexusos: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false } },
-      { name: 'Precio/mes', nexusos: 'TT$2,200', competitors: { 'Athenahealth': '$200+', 'DrChrono': '$150+', 'Kareo': '$125+' } },
+      { name: 'Multi-proveedor', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
+      { name: 'Citas online', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
+      { name: 'Portal de pacientes', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': false }, highlight: true },
+      { name: 'Historial médico', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': true } },
+      { name: 'Recetas digitales', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': true, 'Kareo': false } },
+      { name: 'Laboratorio integrado', aethel: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
+      { name: 'Portal de enfermería', aethel: true, competitors: { 'Athenahealth': true, 'DrChrono': false, 'Kareo': false }, highlight: true },
+      { name: 'IA diagnóstica', aethel: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
+      { name: 'WiPay/Artim', aethel: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
+      { name: 'WhatsApp reminders', aethel: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false }, highlight: true },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Athenahealth': false, 'DrChrono': false, 'Kareo': false } },
+      { name: 'Precio/mes', aethel: 'TT$2,200', competitors: { 'Athenahealth': '$200+', 'DrChrono': '$150+', 'Kareo': '$125+' } },
     ],
     usps: [
       'Único con IA diagnóstica asistida para clínicas del Caribe',
@@ -151,9 +151,9 @@ const industriesData: IndustryData[] = [
       { label: 'IA diagnóstica', value: 'único en el Caribe', highlight: true },
       { label: 'WhatsApp', value: 'recordatorios automáticos' },
     ],
-    nexusosPrice: 'TT$2,200',
+    aethelPrice: 'TT$2,200',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$2,200', features: 12, color: '#22D3EE' },
+      { name: 'AETHEL OS', price: 'TT$2,200', features: 12, color: '#22D3EE' },
       { name: 'Athenahealth', price: '~TT$1,360', features: 7, color: '#3B82F6' },
       { name: 'DrChrono', price: '~TT$1,020', features: 6, color: '#10B981' },
       { name: 'Kareo', price: '~TT$850', features: 5, color: '#8B5CF6' },
@@ -167,18 +167,18 @@ const industriesData: IndustryData[] = [
     description: 'Gestión completa para salones de belleza y spas',
     competitors: ['Vagaro', 'Mindbody', 'Fresha'],
     features: [
-      { name: 'Citas online', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': true } },
-      { name: 'POS integrado', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
-      { name: 'Membresías', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
-      { name: 'Gestión de personal', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
-      { name: 'Comisiones', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
-      { name: 'Contabilidad real', nexusos: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
-      { name: 'Gastos (luz, agua, AC)', nexusos: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
-      { name: 'Impuestos TT', nexusos: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
-      { name: 'WhatsApp booking', nexusos: true, competitors: { 'Vagaro': false, 'Mindbody': true, 'Fresha': false }, highlight: true },
-      { name: 'Multi-sucursal', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'Vagaro': true, 'Mindbody': false, 'Fresha': false } },
-      { name: 'Precio/mes', nexusos: 'TT$1,100', competitors: { 'Vagaro': '$30+', 'Mindbody': '$129+', 'Fresha': 'Gratis*' } },
+      { name: 'Citas online', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': true } },
+      { name: 'POS integrado', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
+      { name: 'Membresías', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
+      { name: 'Gestión de personal', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
+      { name: 'Comisiones', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
+      { name: 'Contabilidad real', aethel: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
+      { name: 'Gastos (luz, agua, AC)', aethel: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
+      { name: 'Impuestos TT', aethel: true, competitors: { 'Vagaro': false, 'Mindbody': false, 'Fresha': false }, highlight: true },
+      { name: 'WhatsApp booking', aethel: true, competitors: { 'Vagaro': false, 'Mindbody': true, 'Fresha': false }, highlight: true },
+      { name: 'Multi-sucursal', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': true, 'Fresha': false } },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Vagaro': true, 'Mindbody': false, 'Fresha': false } },
+      { name: 'Precio/mes', aethel: 'TT$1,100', competitors: { 'Vagaro': '$30+', 'Mindbody': '$129+', 'Fresha': 'Gratis*' } },
     ],
     usps: [
       'Único con contabilidad real integrada (gastos, impuestos TT)',
@@ -199,9 +199,9 @@ const industriesData: IndustryData[] = [
       { label: 'Sin comisiones', value: 'a diferencia de Fresha' },
       { label: 'Impuestos TT', value: 'configurados y listos' },
     ],
-    nexusosPrice: 'TT$1,100',
+    aethelPrice: 'TT$1,100',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$1,100', features: 11, color: '#EC4899' },
+      { name: 'AETHEL OS', price: 'TT$1,100', features: 11, color: '#EC4899' },
       { name: 'Vagaro', price: '~TT$204', features: 8, color: '#6366F1' },
       { name: 'Mindbody', price: '~TT$877', features: 7, color: '#10B981' },
       { name: 'Fresha', price: 'Gratis*', features: 3, color: '#F59E0B' },
@@ -215,18 +215,18 @@ const industriesData: IndustryData[] = [
     description: 'Gestión legal para bufetes del Caribe',
     competitors: ['Clio', 'MyCase', 'PracticePanther'],
     features: [
-      { name: 'Gestión de casos', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
-      { name: 'Time tracking', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
-      { name: 'Trust accounting (IOLTA)', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
-      { name: 'Documentos legales', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
-      { name: 'Biblioteca legal TT', nexusos: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
-      { name: 'Facturación por hora', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
-      { name: 'Portal de clientes', nexusos: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': false } },
-      { name: 'IA para contratos', nexusos: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
-      { name: 'Plantillas TT', nexusos: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
-      { name: 'WhatsApp updates', nexusos: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false } },
-      { name: 'Precio/mes', nexusos: 'TT$2,800', competitors: { 'Clio': '$125+', 'MyCase': '$79+', 'PracticePanther': '$79+' } },
+      { name: 'Gestión de casos', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
+      { name: 'Time tracking', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
+      { name: 'Trust accounting (IOLTA)', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
+      { name: 'Documentos legales', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
+      { name: 'Biblioteca legal TT', aethel: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
+      { name: 'Facturación por hora', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': true } },
+      { name: 'Portal de clientes', aethel: true, competitors: { 'Clio': true, 'MyCase': true, 'PracticePanther': false } },
+      { name: 'IA para contratos', aethel: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
+      { name: 'Plantillas TT', aethel: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
+      { name: 'WhatsApp updates', aethel: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false }, highlight: true },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Clio': false, 'MyCase': false, 'PracticePanther': false } },
+      { name: 'Precio/mes', aethel: 'TT$2,800', competitors: { 'Clio': '$125+', 'MyCase': '$79+', 'PracticePanther': '$79+' } },
     ],
     usps: [
       'Biblioteca legal de Trinidad & Tobago integrada',
@@ -247,12 +247,60 @@ const industriesData: IndustryData[] = [
       { label: 'IOLTA compliant', value: 'cuentas de fideicomiso' },
       { label: '40% ahorro', value: 'vs Clio con más features' },
     ],
-    nexusosPrice: 'TT$2,800',
+    aethelPrice: 'TT$2,800',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$2,800', features: 11, color: '#C4A35A' },
+      { name: 'AETHEL OS', price: 'TT$2,800', features: 11, color: '#C4A35A' },
       { name: 'Clio', price: '~TT$850', features: 8, color: '#6366F1' },
       { name: 'MyCase', price: '~TT$537', features: 7, color: '#10B981' },
       { name: 'PracticePanther', price: '~TT$537', features: 6, color: '#8B5CF6' },
+    ],
+  },
+  {
+    id: 'condo',
+    name: 'Condominios / Propiedades',
+    icon: Building2,
+    color: '#10B981',
+    description: 'Gestión integral de condominios y propiedades horizontales',
+    competitors: ['Buildium', 'AppFolio', 'Yardi'],
+    features: [
+      { name: 'Gestión de unidades', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Facturación mensual', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Portal de residentes', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Reservaciones amenidades', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Contabilidad real', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Mantenimiento', aethel: true, competitors: { 'Buildium': true, 'AppFolio': true, 'Yardi': true } },
+      { name: 'Votaciones electrónicas', aethel: true, competitors: { 'Buildium': false, 'AppFolio': false, 'Yardi': false }, highlight: true },
+      { name: 'WhatsApp notificaciones', aethel: true, competitors: { 'Buildium': false, 'AppFolio': false, 'Yardi': false }, highlight: true },
+      { name: 'Pagos WiPay/Artim', aethel: true, competitors: { 'Buildium': false, 'AppFolio': false, 'Yardi': false }, highlight: true },
+      { name: 'Modo offline', aethel: true, competitors: { 'Buildium': false, 'AppFolio': false, 'Yardi': false }, highlight: true },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Buildium': false, 'AppFolio': false, 'Yardi': false } },
+      { name: 'Precio/mes', aethel: 'TT$1,800', competitors: { 'Buildium': '$100+', 'AppFolio': '$200+', 'Yardi': '$150+' } },
+    ],
+    usps: [
+      'Único con votaciones electrónicas para asambleas',
+      'Notificaciones por WhatsApp para recordatorios de pago',
+      'Modo offline para administradores sin conexión',
+      'Pagos locales integrados (WiPay, Artim)',
+      'Contabilidad lista para contadores profesionales',
+      'Soporte técnico en español 24/7',
+    ],
+    missing: [
+      'App móvil nativa para residentes (en desarrollo)',
+      'Integración con seguros de propiedad',
+      'Marketplace de servicios para residentes',
+    ],
+    quickFacts: [
+      { label: 'Votaciones digitales', value: 'asambleas sin papel', highlight: true },
+      { label: '50% más económico', value: 'que Buildium' },
+      { label: 'Modo offline', value: 'funciona sin internet' },
+      { label: 'Contabilidad real', value: 'lista para contadores' },
+    ],
+    aethelPrice: 'TT$1,800',
+    priceComparison: [
+      { name: 'AETHEL OS', price: 'TT$1,800', features: 11, color: '#10B981' },
+      { name: 'Buildium', price: '~TT$680', features: 7, color: '#3B82F6' },
+      { name: 'AppFolio', price: '~TT$1,360', features: 7, color: '#8B5CF6' },
+      { name: 'Yardi', price: '~TT$1,020', features: 6, color: '#F59E0B' },
     ],
   },
   {
@@ -263,18 +311,18 @@ const industriesData: IndustryData[] = [
     description: 'Control de inventario y recetas para farmacias',
     competitors: ['PioneerRx', 'McKesson', 'RxSafe'],
     features: [
-      { name: 'Inventario', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
-      { name: 'Recetas digitales', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': false } },
-      { name: 'Alertas de stock', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
-      { name: 'Vencimientos', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
-      { name: 'Interacciones medicamentosas', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': false, 'RxSafe': false } },
-      { name: 'POS integrado', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': false, 'RxSafe': false } },
-      { name: 'Multi-sucursal', nexusos: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
-      { name: 'WiPay/Artim', nexusos: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
-      { name: 'WhatsApp refills', nexusos: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
-      { name: 'Reportes TT', nexusos: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false } },
-      { name: 'Precio/mes', nexusos: 'TT$3,200', competitors: { 'PioneerRx': '$250+', 'McKesson': '$300+', 'RxSafe': '$200+' } },
+      { name: 'Inventario', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
+      { name: 'Recetas digitales', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': false } },
+      { name: 'Alertas de stock', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
+      { name: 'Vencimientos', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
+      { name: 'Interacciones medicamentosas', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': false, 'RxSafe': false } },
+      { name: 'POS integrado', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': false, 'RxSafe': false } },
+      { name: 'Multi-sucursal', aethel: true, competitors: { 'PioneerRx': true, 'McKesson': true, 'RxSafe': true } },
+      { name: 'WiPay/Artim', aethel: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
+      { name: 'WhatsApp refills', aethel: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
+      { name: 'Reportes TT', aethel: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false }, highlight: true },
+      { name: 'Soporte en español', aethel: true, competitors: { 'PioneerRx': false, 'McKesson': false, 'RxSafe': false } },
+      { name: 'Precio/mes', aethel: 'TT$3,200', competitors: { 'PioneerRx': '$250+', 'McKesson': '$300+', 'RxSafe': '$200+' } },
     ],
     usps: [
       'Sistema de alertas de interacciones medicamentosas',
@@ -295,9 +343,9 @@ const industriesData: IndustryData[] = [
       { label: 'Reportes TT', value: 'listos para Ministerio' },
       { label: 'Alertas IA', value: 'interacciones medicamentosas' },
     ],
-    nexusosPrice: 'TT$3,200',
+    aethelPrice: 'TT$3,200',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$3,200', features: 11, color: '#8B5CF6' },
+      { name: 'AETHEL OS', price: 'TT$3,200', features: 11, color: '#8B5CF6' },
       { name: 'PioneerRx', price: '~TT$1,700', features: 7, color: '#3B82F6' },
       { name: 'McKesson', price: '~TT$2,040', features: 6, color: '#10B981' },
       { name: 'RxSafe', price: '~TT$1,360', features: 5, color: '#F59E0B' },
@@ -311,18 +359,18 @@ const industriesData: IndustryData[] = [
     description: 'Gestión de pólizas y reclamos para aseguradoras',
     competitors: ['Guidewire', 'Duck Creek', 'Vertafore'],
     features: [
-      { name: 'Gestión de pólizas', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
-      { name: 'Reclamos', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
-      { name: 'Portal de clientes', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
-      { name: 'Portal de agentes', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': false } },
-      { name: 'IA para reclamos', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
-      { name: 'Detección de fraude', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': false } },
-      { name: 'Reportes regulatorios TT', nexusos: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
-      { name: 'Pagos locales', nexusos: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
-      { name: 'WhatsApp claims', nexusos: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
-      { name: 'Multi-rama', nexusos: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
-      { name: 'Soporte en español', nexusos: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false } },
-      { name: 'Precio/mes', nexusos: 'TT$15,000', competitors: { 'Guidewire': '$5,000+', 'Duck Creek': '$3,000+', 'Vertafore': '$2,500+' } },
+      { name: 'Gestión de pólizas', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
+      { name: 'Reclamos', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
+      { name: 'Portal de clientes', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
+      { name: 'Portal de agentes', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': false } },
+      { name: 'IA para reclamos', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
+      { name: 'Detección de fraude', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': false } },
+      { name: 'Reportes regulatorios TT', aethel: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
+      { name: 'Pagos locales', aethel: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
+      { name: 'WhatsApp claims', aethel: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false }, highlight: true },
+      { name: 'Multi-rama', aethel: true, competitors: { 'Guidewire': true, 'Duck Creek': true, 'Vertafore': true } },
+      { name: 'Soporte en español', aethel: true, competitors: { 'Guidewire': false, 'Duck Creek': false, 'Vertafore': false } },
+      { name: 'Precio/mes', aethel: 'TT$15,000', competitors: { 'Guidewire': '$5,000+', 'Duck Creek': '$3,000+', 'Vertafore': '$2,500+' } },
     ],
     usps: [
       'Reportes regulatorios para Trinidad & Tobago listos',
@@ -343,9 +391,9 @@ const industriesData: IndustryData[] = [
       { label: 'IA para reclamos', value: 'evaluación automática' },
       { label: 'WhatsApp', value: 'notificaciones en tiempo real' },
     ],
-    nexusosPrice: 'TT$15,000',
+    aethelPrice: 'TT$15,000',
     priceComparison: [
-      { name: 'NexusOS', price: 'TT$15,000', features: 11, color: '#F59E0B' },
+      { name: 'AETHEL OS', price: 'TT$15,000', features: 11, color: '#F59E0B' },
       { name: 'Guidewire', price: '~TT$34,000', features: 8, color: '#3B82F6' },
       { name: 'Duck Creek', price: '~TT$20,400', features: 7, color: '#10B981' },
       { name: 'Vertafore', price: '~TT$17,000', features: 6, color: '#8B5CF6' },
@@ -394,12 +442,12 @@ function QuickFactCard({ fact }: { fact: { label: string; value: string; highlig
   );
 }
 
-function PriceBar({ name, price, features, color, isNexusOS }: { 
+function PriceBar({ name, price, features, color, isAETHEL OS }: { 
   name: string; 
   price: string; 
   features: number; 
   color: string;
-  isNexusOS: boolean;
+  isAETHEL OS: boolean;
 }) {
   // Parse price for bar width (rough comparison)
   const getPriceValue = (p: string) => {
@@ -412,13 +460,13 @@ function PriceBar({ name, price, features, color, isNexusOS }: {
   const width = Math.max(15, (priceValue / maxPrice) * 100);
 
   return (
-    <div className={`p-4 rounded-xl ${isNexusOS ? 'bg-[rgba(240,180,41,0.1)] border border-[#F0B429]/30' : 'bg-[rgba(108,63,206,0.05)] border border-[rgba(167,139,250,0.1)]'}`}>
+    <div className={`p-4 rounded-xl ${isAETHEL OS ? 'bg-[rgba(240,180,41,0.1)] border border-[#F0B429]/30' : 'bg-[rgba(108,63,206,0.05)] border border-[rgba(167,139,250,0.1)]'}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          {isNexusOS && <Award className="w-4 h-4 text-[#F0B429]" />}
-          <span className={`font-semibold ${isNexusOS ? 'text-[#F0B429]' : 'text-[#EDE9FE]'}`}>{name}</span>
+          {isAETHEL OS && <Award className="w-4 h-4 text-[#F0B429]" />}
+          <span className={`font-semibold ${isAETHEL OS ? 'text-[#F0B429]' : 'text-[#EDE9FE]'}`}>{name}</span>
         </div>
-        <span className={`font-mono text-lg font-bold ${isNexusOS ? 'text-[#F0B429]' : 'text-[#EDE9FE]'}`}>
+        <span className={`font-mono text-lg font-bold ${isAETHEL OS ? 'text-[#F0B429]' : 'text-[#EDE9FE]'}`}>
           {price}
         </span>
       </div>
@@ -430,7 +478,7 @@ function PriceBar({ name, price, features, color, isNexusOS }: {
       </div>
       <div className="flex justify-between mt-2">
         <span className="text-xs text-[#9D7BEA]">{features} features clave</span>
-        {isNexusOS && (
+        {isAETHEL OS && (
           <span className="text-xs text-[#34D399]">Mejor valor</span>
         )}
       </div>
@@ -535,7 +583,7 @@ export function CompetitiveAnalysis() {
               <tr className="border-b border-[rgba(167,139,250,0.1)]">
                 <th className="text-left py-4 px-4 text-sm font-medium text-[#9D7BEA]">Función</th>
                 <th className="text-center py-4 px-4 text-sm font-medium text-[#F0B429] bg-[rgba(240,180,41,0.05)]">
-                  NexusOS
+                  AETHEL OS
                 </th>
                 {currentIndustry.competitors.map((comp) => (
                   <th key={comp} className="text-center py-4 px-4 text-sm font-medium text-[#9D7BEA]">
@@ -561,7 +609,7 @@ export function CompetitiveAnalysis() {
                     </div>
                   </td>
                   <td className="text-center py-3 px-4 bg-[rgba(240,180,41,0.03)]">
-                    <FeatureValue value={feature.nexusos} highlight={feature.highlight} />
+                    <FeatureValue value={feature.aethel} highlight={feature.highlight} />
                   </td>
                   {currentIndustry.competitors.map((comp) => (
                     <td key={comp} className="text-center py-3 px-4">
@@ -635,7 +683,7 @@ export function CompetitiveAnalysis() {
           <div className="text-right">
             <p className="text-sm text-[#9D7BEA]">Nuestro precio</p>
             <p className="text-2xl font-bold text-[#F0B429]" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-              {currentIndustry.nexusosPrice}
+              {currentIndustry.aethelPrice}
             </p>
           </div>
         </div>
@@ -645,7 +693,7 @@ export function CompetitiveAnalysis() {
             <PriceBar 
               key={index} 
               {...item} 
-              isNexusOS={item.name === 'NexusOS'}
+              isAETHEL OS={item.name === 'AETHEL OS'}
             />
           ))}
         </div>
@@ -656,7 +704,7 @@ export function CompetitiveAnalysis() {
             <div>
               <p className="text-sm font-medium text-[#EDE9FE]">Argumento de valor clave</p>
               <p className="text-sm text-[#9D7BEA] mt-1">
-                NexusOS incluye más features locales relevantes para el Caribe que cualquier competidor internacional, 
+                AETHEL OS incluye más features locales relevantes para el Caribe que cualquier competidor internacional, 
                 a una fracción del precio y con soporte en español.
               </p>
             </div>
@@ -680,19 +728,19 @@ export function CompetitiveAnalysis() {
           {[
             {
               scenario: 'Cuando preguntan por precio',
-              script: `"NexusOS cuesta ${currentIndustry.nexusosPrice}/mes, pero incluye features que los competidores internacionales no tienen: pagos locales, WhatsApp, y soporte en español. Con ellos, terminas pagando más por menos."`
+              script: `"AETHEL OS cuesta ${currentIndustry.aethelPrice}/mes, pero incluye features que los competidores internacionales no tienen: pagos locales, WhatsApp, y soporte en español. Con ellos, terminas pagando más por menos."`
             },
             {
               scenario: 'Cuando mencionan competencia',
-              script: `"¿Usas [competidor]? Excelente elección... si estás en Estados Unidos. Para el Caribe, NexusOS está diseñado específicamente para nuestras leyes, moneda y forma de hacer negocios."`
+              script: `"¿Usas [competidor]? Excelente elección... si estás en Estados Unidos. Para el Caribe, AETHEL OS está diseñado específicamente para nuestras leyes, moneda y forma de hacer negocios."`
             },
             {
               scenario: 'Objeción: "Ya tenemos sistema"',
-              script: `"Entiendo. Muchos clientes también tenían sistemas que 'funcionaban'. Lo que descubrieron es que NexusOS les ahorró horas semanales con automatizaciones que no sabían que necesitaban."`
+              script: `"Entiendo. Muchos clientes también tenían sistemas que 'funcionaban'. Lo que descubrieron es que AETHEL OS les ahorró horas semanales con automatizaciones que no sabían que necesitaban."`
             },
             {
               scenario: 'Cierre de conversación',
-              script: `"Te puedo dar acceso a una demo gratuita por 14 días, sin compromiso. Así ves por ti mismo cómo NexusOS se adapta a tu negocio específico."`
+              script: `"Te puedo dar acceso a una demo gratuita por 14 días, sin compromiso. Así ves por ti mismo cómo AETHEL OS se adapta a tu negocio específico."`
             }
           ].map((item, index) => (
             <div 
@@ -726,7 +774,7 @@ export function CompetitiveAnalysis() {
             <Globe className="w-5 h-5 text-[#22D3EE]" />
             <div>
               <p className="text-sm font-medium text-[#EDE9FE]">Documentación</p>
-              <p className="text-xs text-[#9D7BEA]">docs.nexusos.tt</p>
+              <p className="text-xs text-[#9D7BEA]">docs.aethel.tt</p>
             </div>
           </div>
         </div>

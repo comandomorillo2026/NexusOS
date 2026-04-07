@@ -55,7 +55,8 @@ import {
   CreditCard,
   Pill,
   ChefHat,
-  UserCheck
+  UserCheck,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import { CapacityMetrics } from './capacity-metrics';
@@ -122,10 +123,11 @@ function CreateTenantWizard({ onClose, onSuccess }: { onClose: () => void; onSuc
     { value: 'nurse', label: 'Enfermería / Home Care', icon: Heart, color: '#34D399', prices: { starter: 800, growth: 1500, premium: 2500 } },
     { value: 'beauty', label: 'Salón de Belleza / SPA', icon: Scissors, color: '#EC4899', prices: { starter: 600, growth: 1100, premium: 1900 } },
     { value: 'lawfirm', label: 'Bufete de Abogados', icon: Scale, color: '#C4A35A', prices: { starter: 1500, growth: 2800, premium: 4500 } },
-    { value: 'pharmacy', label: 'Farmacia', icon: Heart, color: '#8B5CF6', prices: { starter: 1800, growth: 3200, premium: 5000 } },
+    { value: 'condo', label: 'Condominios / Propiedades', icon: Building2, color: '#10B981', prices: { starter: 1000, growth: 1800, premium: 3200 } },
+    { value: 'pharmacy', label: 'Farmacia', icon: Pill, color: '#8B5CF6', prices: { starter: 1800, growth: 3200, premium: 5000 } },
     { value: 'insurance', label: 'Aseguradora', icon: Shield, color: '#F59E0B', prices: { starter: 8000, growth: 15000, premium: 28000 } },
     { value: 'retail', label: 'Retail / Boutique', icon: Building2, color: '#3B82F6', prices: { starter: 700, growth: 1300, premium: 2200 } },
-    { value: 'bakery', label: 'Panadería / Pastelería', icon: Building2, color: '#F97316', prices: { starter: 500, growth: 900, premium: 1500 } },
+    { value: 'bakery', label: 'Panadería / Pastelería', icon: ChefHat, color: '#F97316', prices: { starter: 500, growth: 900, premium: 1500 } },
   ];
 
   // Get selected industry for dynamic pricing
@@ -1069,6 +1071,8 @@ export function AdminDashboard() {
         return <TenantsManagement />;
       case 'industries':
         return <IndustriesPanel />;
+      case 'documents':
+        return <DocumentsManagement />;
       case 'competitive':
         return <CompetitiveAnalysis />;
       case 'scalability':
@@ -1118,6 +1122,220 @@ export function AdminDashboard() {
 }
 
 // ============================================
+// DOCUMENTS MANAGEMENT
+// ============================================
+function DocumentsManagement() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTenant, setSelectedTenant] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tenants, setTenants] = useState<any[]>([]);
+
+  // Fetch tenants and documents
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tenantsRes] = await Promise.all([
+          fetch('/api/admin/tenants'),
+        ]);
+        const tenantsData = await tenantsRes.json();
+        setTenants(tenantsData.tenants || []);
+        
+        // Mock documents for now - would come from API
+        setDocuments([
+          { id: '1', name: 'Contrato de Servicios - Clínica Demo', type: 'contract', tenantId: '1', tenantName: 'Clínica Demo', status: 'active', createdAt: '2024-01-15', expiresAt: '2025-01-15' },
+          { id: '2', name: 'Acuerdo de Confidencialidad', type: 'nda', tenantId: '1', tenantName: 'Clínica Demo', status: 'active', createdAt: '2024-01-15', expiresAt: null },
+          { id: '3', name: 'Términos y Condiciones', type: 'terms', tenantId: '2', tenantName: 'Bufete Pérez', status: 'active', createdAt: '2024-02-01', expiresAt: null },
+          { id: '4', name: 'Contrato Premium', type: 'contract', tenantId: '3', tenantName: 'Salón Bella Vista', status: 'expired', createdAt: '2023-06-01', expiresAt: '2024-01-01' },
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const documentTypes = [
+    { value: 'contract', label: 'Contrato de Servicios', icon: FileText, color: '#22D3EE' },
+    { value: 'nda', label: 'Acuerdo de Confidencialidad', icon: Shield, color: '#34D399' },
+    { value: 'terms', label: 'Términos y Condiciones', icon: FileText, color: '#F0B429' },
+    { value: 'invoice', label: 'Factura', icon: CreditCard, color: '#EC4899' },
+  ];
+
+  const statusColors: Record<string, string> = {
+    active: 'bg-[var(--success)]/10 text-[var(--success)]',
+    expired: 'bg-[var(--error)]/10 text-[var(--error)]',
+    pending: 'bg-[var(--nexus-gold)]/10 text-[var(--nexus-gold)]',
+  };
+
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          doc.tenantName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTenant = !selectedTenant || doc.tenantId === selectedTenant;
+    return matchesSearch && matchesTenant;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">Gestión de Documentos</h2>
+          <p className="text-sm text-[var(--text-mid)]">Contratos, acuerdos y documentos con inquilinos</p>
+        </div>
+        <Button className="btn-gold">
+          <Plus className="w-4 h-4 mr-2" />
+          Nuevo Documento
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[var(--nexus-violet)]/10 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[var(--nexus-violet)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{documents.length}</p>
+              <p className="text-xs text-[var(--text-dim)]">Total Documentos</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[var(--success)]/10 flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-[var(--success)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{documents.filter(d => d.status === 'active').length}</p>
+              <p className="text-xs text-[var(--text-dim)]">Activos</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[var(--error)]/10 flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-[var(--error)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{documents.filter(d => d.status === 'expired').length}</p>
+              <p className="text-xs text-[var(--text-dim)]">Vencidos</p>
+            </div>
+          </div>
+        </div>
+        <div className="glass-card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[var(--nexus-gold)]/10 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[var(--nexus-gold)]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[var(--text-primary)]">{tenants.length}</p>
+              <p className="text-xs text-[var(--text-dim)]">Inquilinos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar documentos o inquilinos..."
+            className="pl-10"
+          />
+        </div>
+        <select
+          value={selectedTenant || ''}
+          onChange={(e) => setSelectedTenant(e.target.value || null)}
+          className="h-10 px-3 rounded-lg bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-primary)]"
+        >
+          <option value="">Todos los inquilinos</option>
+          {tenants.map((t: any) => (
+            <option key={t.id} value={t.id}>{t.businessName}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Documents Table */}
+      <div className="glass-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--glass-border)] bg-[var(--glass)]">
+                <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Documento</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Inquilino</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Tipo</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Estado</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Vence</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-[var(--text-mid)]">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDocuments.map((doc) => (
+                <tr key={doc.id} className="border-b border-[var(--glass-border)] last:border-0 hover:bg-[var(--glass)]">
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--nexus-violet)]/10 flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-[var(--nexus-violet)]" />
+                      </div>
+                      <span className="text-[var(--text-primary)] font-medium">{doc.name}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-[var(--text-mid)]">{doc.tenantName}</td>
+                  <td className="py-3 px-4">
+                    <span className="px-2 py-1 rounded text-xs bg-[var(--glass)] text-[var(--text-mid)]">
+                      {documentTypes.find(t => t.value === doc.type)?.label || doc.type}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-1 rounded text-xs ${statusColors[doc.status]}`}>
+                      {doc.status === 'active' ? 'Activo' : doc.status === 'expired' ? 'Vencido' : 'Pendiente'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-[var(--text-dim)] text-sm">{doc.expiresAt || 'Sin vencimiento'}</td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="ghost" size="sm" title="Ver">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" title="Descargar">
+                        <ArrowLeft className="w-4 h-4 rotate-180" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {!loading && filteredDocuments.length === 0 && (
+        <div className="text-center py-12">
+          <FileText className="w-12 h-12 mx-auto text-[var(--text-dim)]" />
+          <p className="text-[var(--text-mid)] mt-4">No se encontraron documentos</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <RefreshCw className="w-8 h-8 mx-auto text-[var(--nexus-gold)] animate-spin" />
+          <p className="text-[var(--text-mid)] mt-4">Cargando documentos...</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
 // INDUSTRIES PANEL
 // ============================================
 function IndustriesPanel() {
@@ -1147,6 +1365,7 @@ function IndustriesPanel() {
     { slug: 'nurse', name: 'Enfermería', icon: Heart, color: '#34D399', route: '/nurse' },
     { slug: 'beauty', name: 'Salón de Belleza', icon: Scissors, color: '#EC4899', route: '/beauty' },
     { slug: 'lawfirm', name: 'Bufete de Abogados', icon: Scale, color: '#C4A35A', route: '/lawfirm' },
+    { slug: 'condo', name: 'Condominios/Propiedades', icon: Building2, color: '#10B981', route: '/condo' },
     { slug: 'bakery', name: 'Panadería/Pastelería', icon: ChefHat, color: '#F97316', route: '/bakery' },
     { slug: 'pharmacy', name: 'Farmacia', icon: Pill, color: '#8B5CF6', route: '/pharmacy' },
     { slug: 'insurance', name: 'Seguros', icon: Shield, color: '#F59E0B', route: '/insurance' },
