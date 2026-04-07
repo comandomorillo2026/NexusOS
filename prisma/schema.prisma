@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "sqlite"
   url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL")
 }
 
 model Account {
@@ -3042,4 +3041,1466 @@ model PasswordResetToken {
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+}
+// ============================================
+// CONDOMINIUM & PROPERTY MANAGEMENT SYSTEM
+// Class-leading features inspired by:
+// - Buildium (USA #1 Property Management)
+// - AppFolio (Modern Interface)
+// - BuildingLink (Condo-specific)
+// - Yardi Breeze (Enterprise)
+// ============================================
+
+// ============================================
+// CORE PROPERTY MODELS
+// ============================================
+
+// Property/Building - Main entity for condos or property portfolios
+model CondoProperty {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Basic Info
+  name              String                    // "Residencia Las Palmas"
+  type              String   @default("condominium") // condominium, apartment_complex, commercial, mixed_use, hoas
+  description       String?
+  
+  // Location
+  address           String
+  city              String
+  state             String?
+  postalCode        String?
+  country           String   @default("Trinidad & Tobago")
+  latitude          Float?
+  longitude         Float?
+  
+  // Property Details
+  totalUnits        Int      @default(0)
+  totalFloors       Int?
+  yearBuilt         Int?
+  totalArea         Float?   // Square meters of total property
+  
+  // Amenities Summary
+  hasParking        Boolean  @default(false)
+  parkingSpaces     Int      @default(0)
+  hasPool           Boolean  @default(false)
+  hasGym            Boolean  @default(false)
+  hasElevator       Boolean  @default(false)
+  hasSecurity24h    Boolean  @default(false)
+  hasGenerator      Boolean  @default(false)
+  hasWaterTank      Boolean  @default(false)
+  
+  // Financial
+  monthlyFeeDefault Float    @default(0)      // Default monthly maintenance fee
+  currency          String   @default("TTD")
+  lateFeeAmount     Float    @default(0)
+  lateFeeType       String   @default("fixed") // fixed, percentage
+  lateFeeGraceDays  Int      @default(10)
+  
+  // Banking
+  bankName          String?
+  bankAccount       String?
+  bankAccountType   String?
+  routingNumber     String?
+  
+  // Administration
+  adminCompanyId    String?                    // External management company
+  adminCompanyName  String?
+  adminContactName  String?
+  adminContactEmail String?
+  adminContactPhone String?
+  
+  // Legal
+  registrationNumber String?
+  taxId             String?
+  bylawsDocument    String?                    // URL to PDF
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  units             CondoUnit[]
+  amenities         CondoAmenity[]
+  announcements     CondoAnnouncement[]
+  votes             CondoVote[]
+  bankAccounts      CondoBankAccount[]
+  budgets           CondoBudget[]
+  documents         CondoDocument[]
+  maintenanceRequests CondoMaintenanceRequest[]
+  vendors           CondoVendorAssignment[]
+  staff             CondoStaff[]
+  gates             CondoGate[]
+  parkingSlots      CondoParkingSlot[]
+  
+  @@index([tenantId])
+  @@index([type])
+  @@index([isActive])
+  @@index([city])
+}
+
+// Unit - Individual apartment, house, or commercial space
+model CondoUnit {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Unit Identification
+  unitNumber        String                    // "101", "A-12", "PH-1"
+  floor             Int?
+  building          String?                   // If multiple buildings "Tower A"
+  wing              String?                   // "North Wing"
+  
+  // Unit Details
+  type              String   @default("apartment") // apartment, house, studio, commercial, parking, storage
+  bedrooms          Int      @default(0)
+  bathrooms         Float    @default(0)
+  area              Float?                   // Square meters
+  balcony           Boolean  @default(false)
+  terrace           Boolean  @default(false)
+  
+  // Ownership
+  ownershipType     String   @default("owned") // owned, rented, company_owned
+  
+  // Fees
+  monthlyFee        Float    @default(0)      // Override property default
+  parkingFee        Float    @default(0)
+  specialAssessment Float    @default(0)      // One-time or ongoing special fee
+  
+  // Status
+  status            String   @default("occupied") // occupied, vacant, under_renovation, for_sale, for_rent
+  
+  // Meter Readings (for utilities)
+  electricityMeter  String?
+  waterMeter        String?
+  gasMeter          String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  residents         CondoResident[]
+  owners            CondoOwner[]
+  tenants           CondoTenant[]
+  invoices          CondoInvoice[]
+  payments          CondoPayment[]
+  vehicles          CondoVehicle[]
+  pets              CondoPet[]
+  maintenanceHistory CondoUnitMaintenance[]
+  accessCards       CondoAccessCard[]
+  
+  @@unique([propertyId, unitNumber])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([type])
+}
+
+// Resident - Person living in a unit
+model CondoResident {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Personal Info
+  firstName         String
+  lastName          String
+  email             String?
+  phone             String?
+  phoneAlternate    String?
+  dateOfBirth       String?
+  idType            String?                   // National ID, Passport, etc.
+  idNumber          String?
+  
+  // Profile
+  photo             String?                   // URL to photo
+  occupation        String?
+  employer          String?
+  emergencyContact  String?
+  emergencyPhone    String?
+  
+  // Status in Unit
+  relation          String   @default("resident") // owner, tenant, family_member, domestic_worker
+  isPrimary         Boolean  @default(false)     // Primary contact for unit
+  moveInDate        String?
+  moveOutDate       String?
+  
+  // Communication Preferences
+  receiveEmails     Boolean  @default(true)
+  receiveSMS        Boolean  @default(true)
+  receivePushNotif  Boolean  @default(true)
+  preferredLanguage String   @default("en")     // en, es
+  
+  // Access
+  hasPortalAccess   Boolean  @default(false)
+  portalUserId      String?                   // Link to SystemUser
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  reservations      CondoReservation[]
+  announcements     CondoAnnouncementRead[]
+  votes             CondoVoteResponse[]
+  maintenanceRequests CondoMaintenanceRequest[]
+  
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([email])
+  @@index([isActive])
+}
+
+// Owner - Property owner (may not live there)
+model CondoOwner {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Personal/Company Info
+  isCompany         Boolean  @default(false)
+  companyName       String?
+  firstName         String?
+  lastName          String?
+  email             String
+  phone             String?
+  phoneAlternate    String?
+  
+  // Address (if different from unit)
+  mailingAddress    String?
+  mailingCity       String?
+  mailingState      String?
+  mailingPostalCode String?
+  mailingCountry    String?
+  
+  // Tax Info
+  taxId             String?
+  
+  // Ownership
+  ownershipPercentage Float  @default(100)
+  purchaseDate      String?
+  purchasePrice     Float?
+  
+  // Billing
+  receiveInvoicesByEmail Boolean @default(true)
+  receiveStatementsByEmail Boolean @default(true)
+  
+  // Portal Access
+  hasPortalAccess   Boolean  @default(false)
+  portalUserId      String?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([email])
+  @@index([isActive])
+}
+
+// Tenant - For rental properties
+model CondoTenant {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Personal Info
+  firstName         String
+  lastName          String
+  email             String
+  phone             String?
+  
+  // Lease Info
+  leaseStartDate    String
+  leaseEndDate      String
+  monthlyRent       Float
+  securityDeposit   Float
+  depositHeld       Boolean @default(false)
+  
+  // Landlord
+  landlordId        String?                   // If managed by property manager
+  landlordName      String?
+  
+  // Status
+  status            String   @default("active") // active, expired, terminated
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([leaseEndDate])
+  @@index([isActive])
+}
+
+// ============================================
+// FINANCIAL MODELS
+// ============================================
+
+// Invoice - Monthly fees and charges
+model CondoInvoice {
+  id                String   @id @default(cuid())
+  propertyId        String
+  unitId            String
+  tenantId          String
+  
+  // Invoice Details
+  invoiceNumber     String                    // Auto-generated: INV-2024-0001
+  invoiceDate       String
+  dueDate           String
+  
+  // Type
+  type              String   @default("monthly") // monthly, special, penalty, utility, other
+  
+  // Amounts
+  subtotal          Float    @default(0)
+  lateFee           Float    @default(0)
+  discount          Float    @default(0)
+  tax               Float    @default(0)
+  total             Float    @default(0)
+  
+  // Status
+  status            String   @default("pending") // pending, partial, paid, overdue, cancelled
+  amountPaid        Float    @default(0)
+  balanceDue        Float    @default(0)
+  
+  // Period Covered
+  periodStart       String?
+  periodEnd         String?
+  
+  // Details (JSON array of line items)
+  lineItems         String?                   // JSON: [{description, amount}]
+  
+  // Notes
+  notes             String?
+  
+  // Payment reminders sent
+  reminderSentAt    String?
+  
+  // Timestamps
+  paidAt            String?
+  cancelledAt       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  payments          CondoPayment[]
+  
+  @@unique([propertyId, invoiceNumber])
+  @@index([propertyId])
+  @@index([unitId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([invoiceDate])
+}
+
+// Payment - Payment records
+model CondoPayment {
+  id                String   @id @default(cuid())
+  propertyId        String
+  unitId            String
+  invoiceId         String?
+  tenantId          String
+  
+  // Payment Details
+  paymentNumber     String                    // Auto-generated: PAY-2024-0001
+  paymentDate       String
+  amount            Float
+  
+  // Method
+  method            String                    // cash, check, bank_transfer, card, online
+  
+  // For checks
+  checkNumber       String?
+  checkDate         String?
+  checkBank         String?
+  
+  // For transfers
+  bankReference     String?
+  
+  // For card/online
+  transactionId     String?
+  gatewayUsed       String?                   // stripe, paypal, etc.
+  
+  // Status
+  status            String   @default("completed") // pending, completed, failed, refunded
+  
+  // Received by
+  receivedBy        String?
+  receivedById      String?
+  
+  // Notes
+  notes             String?
+  
+  // Timestamps
+  refundedAt        String?
+  refundReason      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  invoice           CondoInvoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  
+  @@unique([propertyId, paymentNumber])
+  @@index([propertyId])
+  @@index([unitId])
+  @@index([invoiceId])
+  @@index([tenantId])
+  @@index([paymentDate])
+  @@index([status])
+}
+
+// Bank Account - Property bank accounts
+model CondoBankAccount {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Account Info
+  name              String                    // "Operating Account", "Reserve Fund"
+  bankName          String
+  accountNumber     String                    // Last 4 digits for display
+  accountNumberFull String?                   // Encrypted full number
+  accountType       String   @default("checking") // checking, savings
+  
+  // Balance
+  currentBalance    Float    @default(0)
+  lastReconciled    String?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  isDefault         Boolean  @default(false)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  transactions      CondoTransaction[]
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([isActive])
+}
+
+// Transaction - Bank transactions
+model CondoTransaction {
+  id                String   @id @default(cuid())
+  bankAccountId     String
+  propertyId        String
+  tenantId          String
+  
+  // Transaction Details
+  transactionDate   String
+  transactionType   String                    // deposit, withdrawal, transfer, fee
+  category          String?                   // dues, maintenance, utilities, salary, etc.
+  
+  // Amount
+  amount            Float
+  runningBalance    Float?                    // Balance after this transaction
+  
+  // Description
+  description       String
+  reference         String?                   // Check #, transfer ref
+  
+  // Related records
+  paymentId         String?
+  invoiceId         String?
+  
+  // Reconciliation
+  isReconciled      Boolean  @default(false)
+  reconciledAt      String?
+  reconciledBy      String?
+  
+  // Attachments
+  receipt           String?                   // URL to receipt image
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  bankAccount       CondoBankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  
+  @@index([bankAccountId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([transactionDate])
+  @@index([category])
+}
+
+// Budget - Annual budget
+model CondoBudget {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Budget Period
+  name              String                    // "Budget 2024"
+  fiscalYear        Int
+  startDate         String
+  endDate           String
+  
+  // Status
+  status            String   @default("draft") // draft, approved, active, closed
+  
+  // Budget Items (JSON array)
+  budgetItems       String?                   // JSON: [{category, subcategory, budgeted, actual}]
+  
+  // Totals
+  totalBudgeted     Float    @default(0)
+  totalActual       Float    @default(0)
+  
+  // Approval
+  approvedBy        String?
+  approvedAt        String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@unique([propertyId, fiscalYear])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([fiscalYear])
+}
+
+// ============================================
+// AMENITIES & RESERVATIONS
+// ============================================
+
+// Amenity - Pools, gyms, party rooms, etc.
+model CondoAmenity {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Basic Info
+  name              String                    // "Piscina Principal"
+  type              String                    // pool, gym, party_room, bbq_area, tennis, basketball, playground, meeting_room, business_center
+  description       String?
+  
+  // Location
+  location          String?                   // "Ground Floor", "Rooftop"
+  
+  // Capacity & Size
+  capacity          Int?
+  area              Float?                    // Square meters
+  
+  // Hours
+  openTime          String?                   // "06:00"
+  closeTime         String?                   // "22:00"
+  daysAvailable     String?                   // JSON array: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+  
+  // Reservation Settings
+  requiresReservation Boolean @default(false)
+  maxReservationHours Int?
+  maxAdvanceDays    Int      @default(30)
+  minAdvanceHours   Int      @default(24)
+  
+  // Fees
+  reservationFee    Float    @default(0)
+  depositRequired   Float    @default(0)
+  
+  // Rules
+  rules             String?                   // Markdown or plain text
+  
+  // Images
+  images            String?                   // JSON array of image URLs
+  
+  // Status
+  isActive          Boolean  @default(true)
+  isUnderMaintenance Boolean @default(false)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reservations      CondoReservation[]
+  maintenanceLog    CondoAmenityMaintenance[]
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([type])
+  @@index([isActive])
+}
+
+// Reservation - Amenity reservations
+model CondoReservation {
+  id                String   @id @default(cuid())
+  propertyId        String
+  amenityId         String
+  residentId        String
+  tenantId          String
+  
+  // Reservation Details
+  reservationDate   String
+  startTime         String
+  endTime           String
+  
+  // Guests
+  numberOfGuests    Int      @default(0)
+  
+  // Purpose
+  purpose           String?                   // "Birthday party", "Meeting"
+  
+  // Fees
+  feeAmount         Float    @default(0)
+  depositAmount     Float    @default(0)
+  
+  // Payment Status
+  paymentStatus     String   @default("pending") // pending, paid, refunded
+  paymentId         String?
+  
+  // Status
+  status            String   @default("confirmed") // pending, confirmed, cancelled, completed
+  
+  // Cancellation
+  cancelledAt       String?
+  cancelledBy       String?
+  cancelReason      String?
+  
+  // Check-in/out
+  checkedInAt       String?
+  checkedOutAt      String?
+  
+  // Notes
+  specialRequests   String?
+  notes             String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  amenity           CondoAmenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  resident          CondoResident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  
+  @@index([propertyId])
+  @@index([amenityId])
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([reservationDate])
+  @@index([status])
+}
+
+// ============================================
+// COMMUNICATION & VOTING
+// ============================================
+
+// Announcement - Building announcements
+model CondoAnnouncement {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Content
+  title             String
+  content           String                    // Markdown supported
+  category          String   @default("general") // general, maintenance, emergency, event, meeting
+  
+  // Priority
+  priority          String   @default("normal") // low, normal, high, urgent
+  
+  // Publish Settings
+  publishDate       String
+  expireDate        String?
+  
+  // Targeting
+  targetAll         Boolean  @default(true)
+  targetUnits       String?                   // JSON array of unit IDs if not all
+  
+  // Channels
+  sendEmail         Boolean  @default(true)
+  sendSMS           Boolean  @default(false)
+  sendPush          Boolean  @default(true)
+  showOnBulletin    Boolean  @default(true)
+  
+  // Attachments
+  attachments       String?                   // JSON array of file URLs
+  
+  // Author
+  authorId          String?
+  authorName        String?
+  
+  // Status
+  status            String   @default("published") // draft, published, archived
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reads             CondoAnnouncementRead[]
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([category])
+  @@index([publishDate])
+  @@index([status])
+}
+
+// Announcement Read - Track who read announcements
+model CondoAnnouncementRead {
+  id                String   @id @default(cuid())
+  announcementId    String
+  residentId        String
+  
+  readAt            DateTime @default(now())
+  
+  // Relations
+  announcement      CondoAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  resident          CondoResident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  
+  @@unique([announcementId, residentId])
+  @@index([announcementId])
+  @@index([residentId])
+}
+
+// Vote - Electronic voting/polls
+model CondoVote {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Content
+  title             String
+  description       String?
+  type              String   @default("simple") // simple, multiple_choice, ranking, budget_allocation
+  
+  // Options (JSON array)
+  options           String                    // JSON: [{id, text, description}]
+  
+  // Voting Period
+  startDate         String
+  endDate           String
+  
+  // Eligibility
+  eligibleVoters    String   @default("all_owners") // all_owners, all_residents, board_members
+  totalEligible     Int      @default(0)
+  
+  // Quorum
+  requiresQuorum    Boolean  @default(true)
+  quorumPercentage  Float    @default(51)
+  
+  // Anonymity
+  isAnonymous       Boolean  @default(true)
+  
+  // Results
+  results           String?                   // JSON with vote counts
+  totalVotes        Int      @default(0)
+  
+  // Status
+  status            String   @default("upcoming") // upcoming, active, closed, cancelled
+  
+  // Created by
+  createdBy         String?
+  createdByName     String?
+  
+  // Timestamps
+  closedAt          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  responses         CondoVoteResponse[]
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+}
+
+// Vote Response - Individual votes
+model CondoVoteResponse {
+  id                String   @id @default(cuid())
+  voteId            String
+  residentId        String
+  propertyId        String
+  
+  // Response (JSON)
+  response          String                    // JSON: selected options
+  
+  // Verification
+  verificationHash  String?                   // For audit trail
+  
+  // Timestamp
+  votedAt           DateTime @default(now())
+  
+  // Relations
+  vote              CondoVote @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  resident          CondoResident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  
+  @@unique([voteId, residentId])
+  @@index([voteId])
+  @@index([residentId])
+  @@index([propertyId])
+}
+
+// ============================================
+// MAINTENANCE & FACILITIES
+// ============================================
+
+// Maintenance Request - Resident requests
+model CondoMaintenanceRequest {
+  id                String   @id @default(cuid())
+  propertyId        String
+  unitId            String?
+  residentId        String?
+  amenityId         String?
+  tenantId          String
+  
+  // Request Details
+  requestNumber     String                    // Auto-generated: MR-2024-0001
+  category          String                    // plumbing, electrical, hvac, structural, common_area, emergency, other
+  priority          String   @default("normal") // low, normal, high, urgent, emergency
+  
+  // Description
+  title             String
+  description       String
+  location          String?                   // "Kitchen", "Bathroom", "Common Area"
+  
+  // Access
+  accessInstructions String?
+  preferredTime     String?
+  
+  // Images
+  images            String?                   // JSON array of image URLs
+  
+  // Assignment
+  assignedTo        String?                   // Staff or vendor ID
+  assignedToName    String?
+  assignedAt        String?
+  
+  // Status
+  status            String   @default("open") // open, assigned, in_progress, on_hold, completed, cancelled
+  
+  // Completion
+  completedAt       String?
+  completedBy       String?
+  completionNotes   String?
+  laborCost         Float    @default(0)
+  materialsCost     Float    @default(0)
+  totalCost         Float    @default(0)
+  
+  // Rating
+  rating            Int?
+  ratingComment     String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  resident          CondoResident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
+  tickets           CondoMaintenanceTicket[]
+  
+  @@unique([propertyId, requestNumber])
+  @@index([propertyId])
+  @@index([unitId])
+  @@index([residentId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+// Maintenance Ticket - Work order from request
+model CondoMaintenanceTicket {
+  id                String   @id @default(cuid())
+  requestId         String
+  propertyId        String
+  tenantId          String
+  
+  // Ticket Details
+  ticketNumber      String                    // Auto-generated: WO-2024-0001
+  
+  // Work Details
+  workDescription   String
+  estimatedHours    Float?
+  actualHours       Float?
+  
+  // Scheduling
+  scheduledDate     String?
+  scheduledTime     String?
+  
+  // Assignment
+  assignedToId      String?
+  assignedToName    String?
+  assignedToType    String?                   // staff, vendor
+  
+  // Materials
+  materials         String?                   // JSON array of materials used
+  
+  // Costs
+  laborCost         Float    @default(0)
+  materialsCost     Float    @default(0)
+  totalCost         Float    @default(0)
+  
+  // Status
+  status            String   @default("pending") // pending, scheduled, in_progress, completed, cancelled
+  
+  // Timestamps
+  startedAt         String?
+  completedAt       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  request           CondoMaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  @@unique([propertyId, ticketNumber])
+  @@index([requestId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+// Unit Maintenance History
+model CondoUnitMaintenance {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Maintenance Details
+  type              String                    // preventive, corrective, renovation
+  category          String
+  description       String
+  
+  // Costs
+  cost              Float    @default(0)
+  
+  // Date
+  maintenanceDate   String
+  
+  // Vendor
+  vendorId          String?
+  vendorName        String?
+  
+  // Warranty
+  warrantyMonths    Int?
+  warrantyExpires   String?
+  
+  // Notes
+  notes             String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([maintenanceDate])
+}
+
+// Amenity Maintenance Log
+model CondoAmenityMaintenance {
+  id                String   @id @default(cuid())
+  amenityId         String
+  propertyId        String
+  tenantId          String
+  
+  // Maintenance Details
+  type              String                    // routine, repair, renovation, inspection
+  description       String
+  
+  // Scheduling
+  scheduledDate     String
+  completedDate     String?
+  
+  // Status
+  status            String   @default("scheduled") // scheduled, in_progress, completed, cancelled
+  
+  // Costs
+  cost              Float    @default(0)
+  
+  // Vendor
+  vendorId          String?
+  vendorName        String?
+  
+  // Notes
+  notes             String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  amenity           CondoAmenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  
+  @@index([amenityId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([scheduledDate])
+}
+
+// ============================================
+// VENDORS & STAFF
+// ============================================
+
+// Vendor - External contractors and suppliers
+model CondoVendor {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Company Info
+  companyName       String
+  contactName       String?
+  email             String?
+  phone             String?
+  phoneAlternate    String?
+  
+  // Address
+  address           String?
+  city              String?
+  
+  // Services
+  services          String?                   // JSON array: ["plumbing", "electrical", "cleaning"]
+  
+  // Tax & Legal
+  taxId             String?
+  businessLicense   String?
+  insuranceExpiry   String?
+  
+  // Rating
+  rating            Float?
+  totalJobs         Int      @default(0)
+  
+  // Status
+  isActive          Boolean  @default(true)
+  isApproved        Boolean  @default(false)
+  
+  // Notes
+  notes             String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  assignments       CondoVendorAssignment[]
+  
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([isApproved])
+}
+
+// Vendor Assignment - Link vendors to properties
+model CondoVendorAssignment {
+  id                String   @id @default(cuid())
+  propertyId        String
+  vendorId          String
+  tenantId          String
+  
+  // Assignment Details
+  serviceType       String                    // Primary service
+  contractStartDate String?
+  contractEndDate   String?
+  
+  // Contract Value
+  contractValue     Float?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Notes
+  notes             String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  vendor            CondoVendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  @@unique([propertyId, vendorId, serviceType])
+  @@index([propertyId])
+  @@index([vendorId])
+  @@index([tenantId])
+}
+
+// Staff - Building employees
+model CondoStaff {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Personal Info
+  firstName         String
+  lastName          String
+  email             String?
+  phone             String?
+  photo             String?
+  
+  // Position
+  position          String                    // concierge, security, maintenance, cleaning, manager
+  department        String?
+  
+  // Employment
+  employeeId        String?
+  hireDate          String?
+  salary            Float?
+  payFrequency      String   @default("monthly") // weekly, biweekly, monthly
+  
+  // Schedule
+  workDays          String?                   // JSON array
+  workStartTime     String?
+  workEndTime       String?
+  
+  // Access Level
+  accessLevel       String   @default("basic") // basic, standard, admin, super
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([position])
+  @@index([isActive])
+}
+
+// ============================================
+// ACCESS & SECURITY
+// ============================================
+
+// Gate - Building entrances
+model CondoGate {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Gate Info
+  name              String                    // "Main Entrance", "Parking Gate"
+  type              String                    // pedestrian, vehicle, service
+  
+  // Location
+  location          String?
+  
+  // Access Methods
+  hasIntercom       Boolean  @default(false)
+  hasCardReader     Boolean  @default(false)
+  hasKeypad         Boolean  @default(false)
+  hasBiometric      Boolean  @default(false)
+  hasLicensePlate   Boolean  @default(false)
+  
+  // Hours
+  is24Hours         Boolean  @default(true)
+  openTime          String?
+  closeTime         String?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  accessLog         CondoAccessLog[]
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([isActive])
+}
+
+// Access Card - Resident/staff access cards
+model CondoAccessCard {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Card Info
+  cardNumber        String                    // Encrypted
+  cardType          String   @default("resident") // resident, staff, service, visitor
+  
+  // Holder
+  holderName        String
+  holderType        String?                   // resident, domestic_worker, tenant
+  
+  // Validity
+  validFrom         String?
+  validUntil        String?
+  
+  // Status
+  status            String   @default("active") // active, lost, stolen, deactivated
+  
+  // Timestamps
+  issuedAt          DateTime @default(now())
+  deactivatedAt     String?
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  accessLog         CondoAccessLog[]
+  
+  @@unique([cardNumber])
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+// Access Log - Entry/exit records
+model CondoAccessLog {
+  id                String   @id @default(cuid())
+  propertyId        String
+  gateId            String
+  cardId            String?
+  tenantId          String
+  
+  // Access Details
+  accessType        String                    // entry, exit
+  accessMethod      String                    // card, intercom, keypad, license_plate, manual
+  
+  // Person
+  personName        String?
+  personType        String?                   // resident, visitor, staff, delivery
+  
+  // Vehicle
+  licensePlate      String?
+  
+  // Unit
+  unitId            String?
+  unitNumber        String?
+  
+  // Timestamp
+  accessTime        DateTime @default(now())
+  
+  // Photo
+  photo             String?                   // URL to camera capture
+  
+  // Notes
+  notes             String?
+  
+  // Relations
+  gate              CondoGate @relation(fields: [gateId], references: [id], onDelete: Cascade)
+  card              CondoAccessCard? @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  
+  @@index([propertyId])
+  @@index([gateId])
+  @@index([cardId])
+  @@index([tenantId])
+  @@index([accessTime])
+}
+
+// ============================================
+// PARKING & VEHICLES
+// ============================================
+
+// Parking Slot - Parking spaces
+model CondoParkingSlot {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Slot Info
+  slotNumber        String                    // "P-01", "B2-15"
+  level             String?                   // "Level 1", "Basement 2"
+  zone              String?                   // "A", "B", "Visitor"
+  
+  // Type
+  type              String   @default("standard") // standard, compact, large, handicapped, electric
+  isCovered         Boolean  @default(false)
+  
+  // Assignment
+  status            String   @default("available") // available, assigned, reserved, unavailable
+  assignedUnitId    String?
+  assignedTo        String?
+  
+  // Fee
+  monthlyFee        Float    @default(0)
+  
+  // Electric Vehicle
+  hasEVCharger      Boolean  @default(false)
+  evChargerType     String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@unique([propertyId, slotNumber])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+// Vehicle - Registered vehicles
+model CondoVehicle {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Vehicle Info
+  licensePlate      String
+  make              String?
+  model             String?
+  year              Int?
+  color             String?
+  
+  // Type
+  type              String   @default("car") // car, motorcycle, suv, truck
+  
+  // Owner
+  ownerName         String?
+  ownerIdNumber     String?
+  
+  // Parking
+  assignedSlotId    String?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  @@unique([propertyId, licensePlate])
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([licensePlate])
+  @@index([isActive])
+}
+
+// Pet - Registered pets
+model CondoPet {
+  id                String   @id @default(cuid())
+  unitId            String
+  propertyId        String
+  tenantId          String
+  
+  // Pet Info
+  name              String
+  type              String                    // dog, cat, bird, other
+  breed             String?
+  color             String?
+  size              String?                   // small, medium, large
+  
+  // Details
+  weight            Float?
+  age               Int?
+  gender            String?
+  
+  // Registration
+  registrationNumber String?
+  vaccinationExpiry String?
+  isVaccinated      Boolean  @default(false)
+  isSpayedNeutered  Boolean  @default(false)
+  
+  // Photo
+  photo             String?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  unit              CondoUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  @@index([unitId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([isActive])
+}
+
+// ============================================
+// DOCUMENTS
+// ============================================
+
+// Document - Building documents
+model CondoDocument {
+  id                String   @id @default(cuid())
+  propertyId        String
+  tenantId          String
+  
+  // Document Info
+  name              String
+  description       String?
+  category          String                    // bylaws, minutes, financial, contracts, permits, other
+  
+  // File
+  fileUrl           String
+  fileType          String?
+  fileSize          Int?
+  
+  // Access
+  isPublic          Boolean  @default(false) // Visible to all residents?
+  accessibleTo      String?                   // JSON array of roles if not public
+  
+  // Version
+  version           String   @default("1.0")
+  previousVersionId String?
+  
+  // Timestamps
+  uploadedAt        DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  property          CondoProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([category])
 }
