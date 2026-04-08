@@ -144,23 +144,39 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t border-purple-500/20">
-            <p className="text-xs text-purple-300/50 text-center mb-3">Credenciales de demostración:</p>
+            <p className="text-xs text-purple-300/50 text-center mb-3">Credenciales de acceso:</p>
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => fillDemo('admin@nexusos.tt', 'admin123')}
+                onClick={() => fillDemo('admin@aethel.tt', 'Aethel2024!')}
                 className="w-full text-left p-2 rounded bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 text-sm"
                 disabled={isLoading}
               >
-                👑 Admin: admin@nexusos.tt / admin123
+                👑 Admin: admin@aethel.tt / Aethel2024!
               </button>
               <button
                 type="button"
-                onClick={() => fillDemo('clinic@demo.tt', 'demo123')}
+                onClick={() => fillDemo('clinic@aethel.tt', 'Demo2024!')}
                 className="w-full text-left p-2 rounded bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 text-sm"
                 disabled={isLoading}
               >
-                🏥 Clínica: clinic@demo.tt / demo123
+                🏥 Clínica: clinic@aethel.tt / Demo2024!
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('lawfirm@aethel.tt', 'Demo2024!')}
+                className="w-full text-left p-2 rounded bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 text-sm"
+                disabled={isLoading}
+              >
+                ⚖️ Bufete: lawfirm@aethel.tt / Demo2024!
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('beauty@aethel.tt', 'Demo2024!')}
+                className="w-full text-left p-2 rounded bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 text-sm"
+                disabled={isLoading}
+              >
+                💇 Salón: beauty@aethel.tt / Demo2024!
               </button>
             </div>
           </div>
