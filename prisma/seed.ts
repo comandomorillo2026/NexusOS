@@ -138,19 +138,19 @@ async function main() {
 
   // Hash passwords
   const saltRounds = 12;
-  const adminPasswordHash = await bcrypt.hash('admin123', saltRounds);
-  const demoPasswordHash = await bcrypt.hash('demo123', saltRounds);
+  const adminPasswordHash = await bcrypt.hash('Aethel2024!', saltRounds);
+  const demoPasswordHash = await bcrypt.hash('Demo2024!', saltRounds);
 
   // Create SUPER_ADMIN user
   const superAdmin = await prisma.systemUser.upsert({
-    where: { email: 'admin@nexusos.tt' },
+    where: { email: 'admin@aethel.tt' },
     update: {
       passwordHash: adminPasswordHash,
     },
     create: {
       id: randomUUID(),
-      email: 'admin@nexusos.tt',
-      name: 'Super Admin',
+      email: 'admin@aethel.tt',
+      name: 'AETHEL Administrator',
       passwordHash: adminPasswordHash,
       role: 'SUPER_ADMIN',
       isActive: true,
@@ -158,6 +158,7 @@ async function main() {
   });
 
   console.log(`✅ Created SUPER_ADMIN: ${superAdmin.email}`);
+  console.log('   Password: Aethel2024!');
 
   // Create demo tenant for clinic
   const clinicTenant = await prisma.tenant.upsert({
@@ -170,7 +171,7 @@ async function main() {
       legalName: 'Clínica San Fernando S.A.',
       industrySlug: 'clinic',
       ownerName: 'Dr. Juan Martínez',
-      ownerEmail: 'clinic@demo.tt',
+      ownerEmail: 'clinic@aethel.tt',
       ownerPhone: '+1 868 123 4567',
       planSlug: 'growth',
       billingCycle: 'monthly',
@@ -190,14 +191,14 @@ async function main() {
 
   // Create TENANT_ADMIN for clinic
   const clinicAdmin = await prisma.systemUser.upsert({
-    where: { email: 'clinic@demo.tt' },
+    where: { email: 'clinic@aethel.tt' },
     update: {
       passwordHash: demoPasswordHash,
       tenantId: clinicTenant.id,
     },
     create: {
       id: randomUUID(),
-      email: 'clinic@demo.tt',
+      email: 'clinic@aethel.tt',
       name: 'Dr. Juan Martínez',
       passwordHash: demoPasswordHash,
       role: 'TENANT_ADMIN',
@@ -219,7 +220,7 @@ async function main() {
       legalName: 'Bufete Pérez & Asociados',
       industrySlug: 'lawfirm',
       ownerName: 'Carlos Pérez',
-      ownerEmail: 'lawfirm@demo.tt',
+      ownerEmail: 'lawfirm@aethel.tt',
       ownerPhone: '+1 868 234 5678',
       planSlug: 'premium',
       billingCycle: 'annual',
@@ -239,14 +240,14 @@ async function main() {
 
   // Create TENANT_ADMIN for lawfirm
   const lawfirmAdmin = await prisma.systemUser.upsert({
-    where: { email: 'lawfirm@demo.tt' },
+    where: { email: 'lawfirm@aethel.tt' },
     update: {
       passwordHash: demoPasswordHash,
       tenantId: lawfirmTenant.id,
     },
     create: {
       id: randomUUID(),
-      email: 'lawfirm@demo.tt',
+      email: 'lawfirm@aethel.tt',
       name: 'Carlos Pérez',
       passwordHash: demoPasswordHash,
       role: 'TENANT_ADMIN',
@@ -268,7 +269,7 @@ async function main() {
       legalName: 'Salón Bella Vista',
       industrySlug: 'beauty',
       ownerName: 'Ana Gómez',
-      ownerEmail: 'beauty@demo.tt',
+      ownerEmail: 'beauty@aethel.tt',
       ownerPhone: '+1 868 345 6789',
       planSlug: 'growth',
       billingCycle: 'monthly',
@@ -288,14 +289,14 @@ async function main() {
 
   // Create TENANT_ADMIN for beauty
   const beautyAdmin = await prisma.systemUser.upsert({
-    where: { email: 'beauty@demo.tt' },
+    where: { email: 'beauty@aethel.tt' },
     update: {
       passwordHash: demoPasswordHash,
       tenantId: beautyTenant.id,
     },
     create: {
       id: randomUUID(),
-      email: 'beauty@demo.tt',
+      email: 'beauty@aethel.tt',
       name: 'Ana Gómez',
       passwordHash: demoPasswordHash,
       role: 'TENANT_ADMIN',
@@ -317,7 +318,7 @@ async function main() {
       legalName: 'Enfermería Cuidados del Hogar',
       industrySlug: 'nurse',
       ownerName: 'María Rodríguez',
-      ownerEmail: 'nurse@demo.tt',
+      ownerEmail: 'nurse@aethel.tt',
       ownerPhone: '+1 868 456 7890',
       planSlug: 'growth',
       billingCycle: 'monthly',
@@ -337,14 +338,14 @@ async function main() {
 
   // Create TENANT_ADMIN for nurse
   const nurseAdmin = await prisma.systemUser.upsert({
-    where: { email: 'nurse@demo.tt' },
+    where: { email: 'nurse@aethel.tt' },
     update: {
       passwordHash: demoPasswordHash,
       tenantId: nurseTenant.id,
     },
     create: {
       id: randomUUID(),
-      email: 'nurse@demo.tt',
+      email: 'nurse@aethel.tt',
       name: 'María Rodríguez',
       passwordHash: demoPasswordHash,
       role: 'TENANT_ADMIN',
@@ -382,11 +383,11 @@ async function main() {
   // Create system settings
   await prisma.systemSetting.upsert({
     where: { key: 'company_name' },
-    update: { value: 'NexusOS' },
+    update: { value: 'AETHEL OS' },
     create: {
       id: randomUUID(),
       key: 'company_name',
-      value: 'NexusOS',
+      value: 'AETHEL OS',
       description: 'Company name displayed in the system',
       isPublic: true,
     },
@@ -394,11 +395,11 @@ async function main() {
 
   await prisma.systemSetting.upsert({
     where: { key: 'support_email' },
-    update: { value: 'soporte@nexusos.tt' },
+    update: { value: 'soporte@aethel.tt' },
     create: {
       id: randomUUID(),
       key: 'support_email',
-      value: 'soporte@nexusos.tt',
+      value: 'soporte@aethel.tt',
       description: 'Support email address',
       isPublic: true,
     },
@@ -408,11 +409,11 @@ async function main() {
 
   console.log('\n🎉 Seed completed successfully!');
   console.log('\n📋 Demo Credentials:');
-  console.log('   SUPER_ADMIN: admin@nexusos.tt / admin123');
-  console.log('   CLINIC: clinic@demo.tt / demo123');
-  console.log('   LAWYER: lawfirm@demo.tt / demo123');
-  console.log('   BEAUTY: beauty@demo.tt / demo123');
-  console.log('   NURSE: nurse@demo.tt / demo123');
+  console.log('   SUPER_ADMIN: admin@aethel.tt / Aethel2024!');
+  console.log('   CLINIC: clinic@aethel.tt / Demo2024!');
+  console.log('   LAWYER: lawfirm@aethel.tt / Demo2024!');
+  console.log('   BEAUTY: beauty@aethel.tt / Demo2024!');
+  console.log('   NURSE: nurse@aethel.tt / Demo2024!');
 }
 
 main()
