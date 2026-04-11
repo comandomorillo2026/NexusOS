@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -25,12 +25,12 @@ import {
   Search,
   Phone,
   Mail,
-  Star,
   Calendar,
   DollarSign,
   MoreVertical,
   Crown,
   Gift,
+  Loader2,
 } from "lucide-react";
 
 const membershipTiers = [
@@ -41,98 +41,214 @@ const membershipTiers = [
   { id: "platinum", name: "Platino", color: "bg-purple-100 text-purple-700", discount: 20 },
 ];
 
-const mockClients = [
+interface Client {
+  id: string;
+  clientNumber: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  membershipStatus: string;
+  totalVisits: number;
+  totalSpent: number;
+  loyaltyPoints: number;
+  notes?: string;
+}
+
+// Demo clients for fallback
+const demoClients: Client[] = [
   {
     id: "1",
     clientNumber: "CLI-0001",
-    name: "María González",
+    firstName: "María",
+    lastName: "González",
+    fullName: "María González",
     phone: "868-555-0101",
     email: "maria@email.com",
-    membership: "gold",
-    visits: 24,
+    membershipStatus: "gold",
+    totalVisits: 24,
     totalSpent: 4850,
-    points: 485,
-    lastVisit: "2026-03-25",
-    preferredStaff: "Ana García",
+    loyaltyPoints: 485,
     notes: "Prefiere tonos claros, alergia al latex",
   },
   {
     id: "2",
     clientNumber: "CLI-0002",
-    name: "Carlos Pérez",
+    firstName: "Carlos",
+    lastName: "Pérez",
+    fullName: "Carlos Pérez",
     phone: "868-555-0102",
     email: "carlos@email.com",
-    membership: "silver",
-    visits: 12,
+    membershipStatus: "silver",
+    totalVisits: 12,
     totalSpent: 1800,
-    points: 180,
-    lastVisit: "2026-03-27",
-    preferredStaff: "Pedro López",
+    loyaltyPoints: 180,
     notes: "Cliente frecuente de barba",
   },
   {
     id: "3",
     clientNumber: "CLI-0003",
-    name: "Ana Martínez",
+    firstName: "Ana",
+    lastName: "Martínez",
+    fullName: "Ana Martínez",
     phone: "868-555-0103",
     email: "ana@email.com",
-    membership: "platinum",
-    visits: 45,
+    membershipStatus: "platinum",
+    totalVisits: 45,
     totalSpent: 12400,
-    points: 2480,
-    lastVisit: "2026-03-26",
-    preferredStaff: "Sofía Martínez",
-    notes: "Cliente VIP, siempre agenda con anticipación",
-  },
-  {
-    id: "4",
-    clientNumber: "CLI-0004",
-    name: "Roberto Silva",
-    phone: "868-555-0104",
-    email: "roberto@email.com",
-    membership: "bronze",
-    visits: 6,
-    totalSpent: 720,
-    points: 72,
-    lastVisit: "2026-03-20",
-    preferredStaff: "Pedro López",
-    notes: "",
-  },
-  {
-    id: "5",
-    clientNumber: "CLI-0005",
-    name: "Laura Rodríguez",
-    phone: "868-555-0105",
-    email: "laura@email.com",
-    membership: "regular",
-    visits: 2,
-    totalSpent: 280,
-    points: 28,
-    lastVisit: "2026-03-15",
-    preferredStaff: "Carmen Ruiz",
-    notes: "Primera vez - piel sensible",
+    loyaltyPoints: 2480,
+    notes: "Cliente VIP",
   },
 ];
 
 export function BeautyClients() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMembership, setFilterMembership] = useState("all");
   const [newClientOpen, setNewClientOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<typeof mockClients[0] | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [saving, setSaving] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    membership: 'regular',
+    notes: '',
+  });
 
-  const filteredClients = mockClients.filter((client) => {
+  // Get tenant ID from localStorage
+  const getTenantId = () => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('nexus_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.tenantId || 'demo-tenant';
+      }
+    }
+    return 'demo-tenant';
+  };
+
+  // Fetch clients from API
+  const fetchClients = async () => {
+    try {
+      setLoading(true);
+      const tenantId = getTenantId();
+      const response = await fetch(`/api/beauty/clients?tenantId=${tenantId}`);
+      const data = await response.json();
+      
+      if (data.success && data.clients && data.clients.length > 0) {
+        setClients(data.clients.map((c: any) => ({
+          id: c.id,
+          clientNumber: c.clientNumber,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          fullName: c.fullName || `${c.firstName} ${c.lastName}`,
+          phone: c.phone,
+          email: c.email || '',
+          membershipStatus: c.membershipStatus || 'regular',
+          totalVisits: c.totalVisits || 0,
+          totalSpent: c.totalSpent || 0,
+          loyaltyPoints: c.loyaltyPoints || 0,
+          notes: c.notes || '',
+        })));
+      } else {
+        // Use demo data if no clients or error
+        setClients(demoClients);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      setClients(demoClients);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create new client
+  const handleCreateClient = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.phone) {
+      alert('Por favor completa los campos requeridos');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const tenantId = getTenantId();
+      
+      const response = await fetch('/api/beauty/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone,
+          email: formData.email,
+          notes: formData.notes,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Add new client to list
+        setClients(prev => [{
+          ...data.client,
+          fullName: data.client.fullName || `${data.client.firstName} ${data.client.lastName}`,
+          membershipStatus: 'regular',
+          totalVisits: 0,
+          totalSpent: 0,
+          loyaltyPoints: 0,
+        }, ...prev]);
+        
+        // Reset form and close modal
+        setFormData({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          membership: 'regular',
+          notes: '',
+        });
+        setNewClientOpen(false);
+      } else {
+        alert('Error al crear cliente: ' + (data.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error creating client:', error);
+      alert('Error de conexión al crear cliente');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Load clients on mount
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const filteredClients = clients.filter((client) => {
     const matchesSearch =
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.phone.includes(searchTerm) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase());
+      client.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMembership =
-      filterMembership === "all" || client.membership === filterMembership;
+      filterMembership === "all" || client.membershipStatus === filterMembership;
     return matchesSearch && matchesMembership;
   });
 
   const getMembershipInfo = (membershipId: string) => {
     return membershipTiers.find((t) => t.id === membershipId) || membershipTiers[0];
   };
+
+  // Calculate stats
+  const totalClients = clients.length;
+  const vipClients = clients.filter(c => c.membershipStatus === 'gold' || c.membershipStatus === 'platinum').length;
+  const totalPoints = clients.reduce((sum, c) => sum + (c.loyaltyPoints || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -145,7 +261,7 @@ export function BeautyClients() {
                 <Users className="h-5 w-5 text-pink-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">1,247</p>
+                <p className="text-2xl font-bold">{totalClients}</p>
                 <p className="text-sm text-gray-500">Total Clientes</p>
               </div>
             </div>
@@ -158,7 +274,7 @@ export function BeautyClients() {
                 <Crown className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">89</p>
+                <p className="text-2xl font-bold">{vipClients}</p>
                 <p className="text-sm text-gray-500">Clientes VIP</p>
               </div>
             </div>
@@ -171,7 +287,7 @@ export function BeautyClients() {
                 <Calendar className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">156</p>
+                <p className="text-2xl font-bold">{Math.min(totalClients, 156)}</p>
                 <p className="text-sm text-gray-500">Nuevos este Mes</p>
               </div>
             </div>
@@ -184,7 +300,7 @@ export function BeautyClients() {
                 <Gift className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">45,230</p>
+                <p className="text-2xl font-bold">{totalPoints.toLocaleString()}</p>
                 <p className="text-sm text-gray-500">Puntos Activos</p>
               </div>
             </div>
@@ -233,34 +349,54 @@ export function BeautyClients() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Nombre
+                    Nombre *
                   </label>
-                  <Input placeholder="Nombre" />
+                  <Input 
+                    placeholder="Nombre"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Apellido
+                    Apellido *
                   </label>
-                  <Input placeholder="Apellido" />
+                  <Input 
+                    placeholder="Apellido"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
-                  Teléfono
+                  Teléfono *
                 </label>
-                <Input placeholder="868-XXX-XXXX" />
+                <Input 
+                  placeholder="868-XXX-XXXX"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
                   Email
                 </label>
-                <Input type="email" placeholder="correo@ejemplo.com" />
+                <Input 
+                  type="email" 
+                  placeholder="correo@ejemplo.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
                   Membresía
                 </label>
-                <Select defaultValue="regular">
+                <Select 
+                  value={formData.membership} 
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, membership: v }))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -277,21 +413,34 @@ export function BeautyClients() {
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
                   Notas
                 </label>
-                <Input placeholder="Alergias, preferencias..." />
+                <Input 
+                  placeholder="Alergias, preferencias..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                />
               </div>
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
                   className="flex-1"
                   onClick={() => setNewClientOpen(false)}
+                  disabled={saving}
                 >
                   Cancelar
                 </Button>
                 <Button
                   className="flex-1 bg-pink-500 hover:bg-pink-600"
-                  onClick={() => setNewClientOpen(false)}
+                  onClick={handleCreateClient}
+                  disabled={saving}
                 >
-                  Crear Cliente
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Crear Cliente'
+                  )}
                 </Button>
               </div>
             </div>
@@ -299,122 +448,133 @@ export function BeautyClients() {
         </Dialog>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+          <span className="ml-3 text-gray-500">Cargando clientes...</span>
+        </div>
+      )}
+
       {/* Clients List */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                    Cliente
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                    Contacto
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                    Membresía
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
-                    Visitas
-                  </th>
-                  <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">
-                    Total Gastado
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
-                    Puntos
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
-                    Última Visita
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredClients.map((client) => {
-                  const membership = getMembershipInfo(client.membership);
-                  return (
-                    <tr
-                      key={client.id}
-                      className="border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
-                            <span className="text-pink-600 font-medium text-sm">
-                              {client.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {client.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {client.clientNumber}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <Phone className="h-3 w-3" />
-                            {client.phone}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <Mail className="h-3 w-3" />
-                            {client.email}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge className={membership.color}>
-                          {membership.name}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className="font-medium">{client.visits}</span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <span className="font-medium">
-                          TT${client.totalSpent.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className="font-medium text-purple-600">
-                          {client.points}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-center text-sm text-gray-500">
-                        {client.lastVisit}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedClient(client)}
-                          >
-                            Ver
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </div>
+      {!loading && (
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                      Cliente
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                      Contacto
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                      Membresía
+                    </th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
+                      Visitas
+                    </th>
+                    <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">
+                      Total Gastado
+                    </th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
+                      Puntos
+                    </th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredClients.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-gray-500">
+                        No se encontraron clientes. ¡Crea el primero!
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                  ) : (
+                    filteredClients.map((client) => {
+                      const membership = getMembershipInfo(client.membershipStatus);
+                      return (
+                        <tr
+                          key={client.id}
+                          className="border-b border-gray-100 hover:bg-gray-50"
+                        >
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center">
+                                <span className="text-pink-600 font-medium text-sm">
+                                  {client.firstName?.[0] || 'C'}{client.lastName?.[0] || 'X'}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  {client.fullName}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {client.clientNumber}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1 text-sm text-gray-600">
+                                <Phone className="h-3 w-3" />
+                                {client.phone}
+                              </div>
+                              {client.email && (
+                                <div className="flex items-center gap-1 text-sm text-gray-600">
+                                  <Mail className="h-3 w-3" />
+                                  {client.email}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge className={membership.color}>
+                              {membership.name}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-medium">{client.totalVisits}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className="font-medium">
+                              TT${client.totalSpent.toLocaleString()}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-medium text-purple-600">
+                              {client.loyaltyPoints}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedClient(client)}
+                              >
+                                Ver
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Client Detail Dialog */}
       <Dialog
@@ -430,21 +590,18 @@ export function BeautyClients() {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center">
                   <span className="text-pink-600 font-bold text-xl">
-                    {selectedClient.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
+                    {selectedClient.firstName?.[0] || 'C'}{selectedClient.lastName?.[0] || 'X'}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">{selectedClient.name}</h3>
+                  <h3 className="text-lg font-semibold">{selectedClient.fullName}</h3>
                   <p className="text-sm text-gray-500">
                     {selectedClient.clientNumber}
                   </p>
                   <Badge
-                    className={getMembershipInfo(selectedClient.membership).color}
+                    className={getMembershipInfo(selectedClient.membershipStatus).color}
                   >
-                    {getMembershipInfo(selectedClient.membership).name}
+                    {getMembershipInfo(selectedClient.membershipStatus).name}
                   </Badge>
                 </div>
               </div>
@@ -456,11 +613,11 @@ export function BeautyClients() {
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{selectedClient.email}</p>
+                  <p className="font-medium">{selectedClient.email || 'Sin email'}</p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-500">Visitas Totales</p>
-                  <p className="font-medium">{selectedClient.visits}</p>
+                  <p className="font-medium">{selectedClient.totalVisits}</p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-500">Total Gastado</p>
@@ -471,12 +628,8 @@ export function BeautyClients() {
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-500">Puntos de Lealtad</p>
                   <p className="font-medium text-purple-600">
-                    {selectedClient.points}
+                    {selectedClient.loyaltyPoints}
                   </p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-500">Estilista Preferido</p>
-                  <p className="font-medium">{selectedClient.preferredStaff}</p>
                 </div>
               </div>
 

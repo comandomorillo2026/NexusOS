@@ -527,17 +527,52 @@ function TenantsManagement() {
     suspended: 'bg-[var(--error)]/10 text-[var(--error)]'
   };
 
-  const handleToggleStatus = (id: string, currentStatus: string) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    // Determine new status
+    let newStatus = currentStatus;
+    if (currentStatus === 'active') newStatus = 'suspended';
+    else if (currentStatus === 'pending') newStatus = 'active';
+    else newStatus = 'active';
+
+    // Optimistic update
     setTenants(prev => prev.map(t => {
       if (t.id === id) {
-        let newStatus = currentStatus;
-        if (currentStatus === 'active') newStatus = 'suspended';
-        else if (currentStatus === 'pending') newStatus = 'active';
-        else newStatus = 'active';
         return { ...t, status: newStatus };
       }
       return t;
     }));
+
+    // Call API to persist change
+    try {
+      const response = await fetch(`/api/admin/tenants/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        // Revert on failure
+        setTenants(prev => prev.map(t => {
+          if (t.id === id) {
+            return { ...t, status: currentStatus };
+          }
+          return t;
+        }));
+        alert('Error al actualizar estado: ' + (data.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      // Revert on error
+      setTenants(prev => prev.map(t => {
+        if (t.id === id) {
+          return { ...t, status: currentStatus };
+        }
+        return t;
+      }));
+      console.error('Error updating tenant status:', error);
+      alert('Error de conexión al actualizar estado');
+    }
   };
 
   const filteredTenants = tenants.filter(t => {

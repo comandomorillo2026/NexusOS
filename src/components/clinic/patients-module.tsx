@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClinicLayout } from './clinic-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,27 +13,153 @@ import {
   Calendar,
   MoreVertical,
   User,
-  Filter
+  Filter,
+  Loader2
 } from 'lucide-react';
 
-// Demo patients data
-const DEMO_PATIENTS = [
-  { id: '1', patientNumber: 'PAT-001', firstName: 'María', lastName: 'González', phone: '+1 868 555-0001', email: 'maria@email.com', lastVisit: '2026-03-20', status: 'active' },
-  { id: '2', patientNumber: 'PAT-002', firstName: 'Carlos', lastName: 'Rodríguez', phone: '+1 868 555-0002', email: 'carlos@email.com', lastVisit: '2026-03-19', status: 'active' },
-  { id: '3', patientNumber: 'PAT-003', firstName: 'Ana', lastName: 'Martínez', phone: '+1 868 555-0003', email: 'ana@email.com', lastVisit: '2026-03-18', status: 'active' },
-  { id: '4', patientNumber: 'PAT-004', firstName: 'José', lastName: 'Pérez', phone: '+1 868 555-0004', email: 'jose@email.com', lastVisit: '2026-03-15', status: 'inactive' },
-  { id: '5', patientNumber: 'PAT-005', firstName: 'Laura', lastName: 'Sánchez', phone: '+1 868 555-0005', email: 'laura@email.com', lastVisit: '2026-03-10', status: 'active' },
-];
+interface Patient {
+  id: string;
+  patientNumber: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  lastVisit?: string;
+  status: string;
+}
 
 export function PatientsModule() {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewPatientForm, setShowNewPatientForm] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    dateOfBirth: '',
+    gender: '',
+    address: '',
+    notes: '',
+  });
 
-  const filteredPatients = DEMO_PATIENTS.filter(p => 
+  // Get tenant ID from localStorage
+  const getTenantId = () => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('nexus_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.tenantId || 'demo-tenant';
+      }
+    }
+    return 'demo-tenant';
+  };
+
+  // Fetch patients from API
+  const fetchPatients = async () => {
+    try {
+      setLoading(true);
+      const tenantId = getTenantId();
+      const response = await fetch(`/api/clinic/patients?tenantId=${tenantId}`);
+      const data = await response.json();
+      
+      if (data.success && data.patients) {
+        setPatients(data.patients.map((p: any) => ({
+          ...p,
+          status: 'active',
+          lastVisit: p.updatedAt?.split('T')[0] || 'N/A',
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      // Use demo data if API fails
+      setPatients([
+        { id: '1', patientNumber: 'PAT-001', firstName: 'María', lastName: 'González', fullName: 'María González', phone: '+1 868 555-0001', email: 'maria@email.com', lastVisit: '2026-03-20', status: 'active' },
+        { id: '2', patientNumber: 'PAT-002', firstName: 'Carlos', lastName: 'Rodríguez', fullName: 'Carlos Rodríguez', phone: '+1 868 555-0002', email: 'carlos@email.com', lastVisit: '2026-03-19', status: 'active' },
+        { id: '3', patientNumber: 'PAT-003', firstName: 'Ana', lastName: 'Martínez', fullName: 'Ana Martínez', phone: '+1 868 555-0003', email: 'ana@email.com', lastVisit: '2026-03-18', status: 'active' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create new patient
+  const handleCreatePatient = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.phone) {
+      alert('Por favor completa los campos requeridos: Nombre, Apellido y Teléfono');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const tenantId = getTenantId();
+      
+      const response = await fetch('/api/clinic/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone,
+          email: formData.email,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          address: formData.address,
+          notes: formData.notes,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Add new patient to list
+        setPatients(prev => [{
+          ...data.patient,
+          status: 'active',
+          lastVisit: 'N/A',
+        }, ...prev]);
+        
+        // Reset form and close modal
+        setFormData({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          dateOfBirth: '',
+          gender: '',
+          address: '',
+          notes: '',
+        });
+        setShowNewPatientForm(false);
+      } else {
+        alert(data.error || 'Error al crear paciente');
+      }
+    } catch (error) {
+      console.error('Error creating patient:', error);
+      alert('Error al crear paciente');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Load patients on mount
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const filteredPatients = patients.filter(p => 
     `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.phone.includes(searchTerm) ||
-    p.patientNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    p.patientNumber?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -72,19 +198,23 @@ export function PatientsModule() {
         <div className="glass-card p-4">
           <p className="text-[var(--text-mid)] text-xs">Total Pacientes</p>
           <p className="text-2xl font-bold text-[var(--text-primary)]" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-            {DEMO_PATIENTS.length}
+            {patients.length}
           </p>
         </div>
         <div className="glass-card p-4">
           <p className="text-[var(--text-mid)] text-xs">Activos</p>
           <p className="text-2xl font-bold text-[var(--success)]" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-            {DEMO_PATIENTS.filter(p => p.status === 'active').length}
+            {patients.filter(p => p.status === 'active').length}
           </p>
         </div>
         <div className="glass-card p-4">
           <p className="text-[var(--text-mid)] text-xs">Nuevos este mes</p>
           <p className="text-2xl font-bold text-[var(--nexus-aqua)]" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-            12
+            {patients.filter(p => {
+              const created = new Date(p.id.split('_')[1] || Date.now());
+              const now = new Date();
+              return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+            }).length || patients.length}
           </p>
         </div>
         <div className="glass-card p-4">
@@ -95,118 +225,136 @@ export function PatientsModule() {
         </div>
       </div>
 
-      {/* Patients Table/Cards */}
-      <div className="glass-card overflow-hidden">
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--glass-border)]">
-                <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Paciente</th>
-                <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Contacto</th>
-                <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Nº Paciente</th>
-                <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Última Visita</th>
-                <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Estado</th>
-                <th className="text-right p-4 text-sm font-medium text-[var(--text-mid)]">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient) => (
-                <tr 
-                  key={patient.id} 
-                  className="border-b border-[var(--glass-border)] last:border-0 hover:bg-[var(--glass)] transition-colors cursor-pointer"
-                  onClick={() => setSelectedPatient(patient.id)}
-                >
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--nexus-violet)] to-[var(--nexus-fuchsia)] flex items-center justify-center">
-                        <span className="text-white font-medium text-sm">
-                          {patient.firstName[0]}{patient.lastName[0]}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-[var(--text-primary)] font-medium">
-                          {patient.firstName} {patient.lastName}
-                        </p>
-                        <p className="text-xs text-[var(--text-dim)]">{patient.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 text-sm text-[var(--text-mid)]">
-                      <Phone className="w-4 h-4" />
-                      {patient.phone}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className="text-sm text-[var(--nexus-violet-lite)] font-mono">{patient.patientNumber}</span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2 text-sm text-[var(--text-mid)]">
-                      <Calendar className="w-4 h-4" />
-                      {patient.lastVisit}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      patient.status === 'active' 
-                        ? 'bg-[var(--success)]/10 text-[var(--success)]' 
-                        : 'bg-[var(--text-dim)]/10 text-[var(--text-dim)]'
-                    }`}>
-                      {patient.status === 'active' ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button className="p-2 rounded hover:bg-[var(--glass)] transition-colors">
-                      <MoreVertical className="w-4 h-4 text-[var(--text-mid)]" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--nexus-gold)]" />
+          <span className="ml-3 text-[var(--text-mid)]">Cargando pacientes...</span>
         </div>
+      )}
 
-        {/* Mobile Cards */}
-        <div className="md:hidden space-y-4 p-4">
-          {filteredPatients.map((patient) => (
-            <div 
-              key={patient.id} 
-              className="p-4 rounded-lg bg-[var(--glass)] cursor-pointer"
-              onClick={() => setSelectedPatient(patient.id)}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--nexus-violet)] to-[var(--nexus-fuchsia)] flex items-center justify-center">
-                  <span className="text-white font-bold">
-                    {patient.firstName[0]}{patient.lastName[0]}
+      {/* Patients Table/Cards */}
+      {!loading && (
+        <div className="glass-card overflow-hidden">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[var(--glass-border)]">
+                  <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Paciente</th>
+                  <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Contacto</th>
+                  <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Nº Paciente</th>
+                  <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Última Visita</th>
+                  <th className="text-left p-4 text-sm font-medium text-[var(--text-mid)]">Estado</th>
+                  <th className="text-right p-4 text-sm font-medium text-[var(--text-mid)]">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPatients.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-[var(--text-mid)]">
+                      No se encontraron pacientes. ¡Crea el primero!
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPatients.map((patient) => (
+                    <tr 
+                      key={patient.id} 
+                      className="border-b border-[var(--glass-border)] last:border-0 hover:bg-[var(--glass)] transition-colors cursor-pointer"
+                      onClick={() => setSelectedPatient(patient.id)}
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--nexus-violet)] to-[var(--nexus-fuchsia)] flex items-center justify-center">
+                            <span className="text-white font-medium text-sm">
+                              {patient.firstName?.[0] || 'P'}{patient.lastName?.[0] || 'X'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[var(--text-primary)] font-medium">
+                              {patient.fullName || `${patient.firstName} ${patient.lastName}`}
+                            </p>
+                            <p className="text-xs text-[var(--text-dim)]">{patient.email || 'Sin email'}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2 text-sm text-[var(--text-mid)]">
+                          <Phone className="w-4 h-4" />
+                          {patient.phone}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm text-[var(--nexus-violet-lite)] font-mono">{patient.patientNumber}</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2 text-sm text-[var(--text-mid)]">
+                          <Calendar className="w-4 h-4" />
+                          {patient.lastVisit || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          patient.status === 'active' 
+                            ? 'bg-[var(--success)]/10 text-[var(--success)]' 
+                            : 'bg-[var(--text-dim)]/10 text-[var(--text-dim)]'
+                        }`}>
+                          {patient.status === 'active' ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button className="p-2 rounded hover:bg-[var(--glass)] transition-colors">
+                          <MoreVertical className="w-4 h-4 text-[var(--text-mid)]" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-4 p-4">
+            {filteredPatients.map((patient) => (
+              <div 
+                key={patient.id} 
+                className="p-4 rounded-lg bg-[var(--glass)] cursor-pointer"
+                onClick={() => setSelectedPatient(patient.id)}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--nexus-violet)] to-[var(--nexus-fuchsia)] flex items-center justify-center">
+                    <span className="text-white font-bold">
+                      {patient.firstName?.[0] || 'P'}{patient.lastName?.[0] || 'X'}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[var(--text-primary)] font-medium">
+                      {patient.fullName || `${patient.firstName} ${patient.lastName}`}
+                    </p>
+                    <p className="text-xs text-[var(--nexus-violet-lite)] font-mono">{patient.patientNumber}</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    patient.status === 'active' 
+                      ? 'bg-[var(--success)]/10 text-[var(--success)]' 
+                      : 'bg-[var(--text-dim)]/10 text-[var(--text-dim)]'
+                  }`}>
+                    {patient.status === 'active' ? 'Activo' : 'Inactivo'}
                   </span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-[var(--text-primary)] font-medium">
-                    {patient.firstName} {patient.lastName}
-                  </p>
-                  <p className="text-xs text-[var(--nexus-violet-lite)] font-mono">{patient.patientNumber}</p>
-                </div>
-                <span className={`px-2 py-1 rounded text-xs ${
-                  patient.status === 'active' 
-                    ? 'bg-[var(--success)]/10 text-[var(--success)]' 
-                    : 'bg-[var(--text-dim)]/10 text-[var(--text-dim)]'
-                }`}>
-                  {patient.status === 'active' ? 'Activo' : 'Inactivo'}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-[var(--text-mid)]">
-                <div className="flex items-center gap-1">
-                  <Phone className="w-3 h-3" /> {patient.phone}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> {patient.lastVisit}
+                <div className="grid grid-cols-2 gap-2 text-xs text-[var(--text-mid)]">
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3 h-3" /> {patient.phone}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" /> {patient.lastVisit || 'N/A'}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* New Patient Modal */}
       {showNewPatientForm && (
@@ -217,33 +365,58 @@ export function PatientsModule() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[var(--text-mid)]">Nombre</Label>
-                  <Input placeholder="Nombre" />
+                  <Label className="text-[var(--text-mid)]">Nombre *</Label>
+                  <Input 
+                    placeholder="Nombre" 
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[var(--text-mid)]">Apellido</Label>
-                  <Input placeholder="Apellido" />
+                  <Label className="text-[var(--text-mid)]">Apellido *</Label>
+                  <Input 
+                    placeholder="Apellido" 
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Teléfono *</Label>
-                <Input placeholder="+1 868 XXX-XXXX" />
+                <Input 
+                  placeholder="+1 868 XXX-XXXX" 
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Email</Label>
-                <Input type="email" placeholder="correo@ejemplo.com" />
+                <Input 
+                  type="email" 
+                  placeholder="correo@ejemplo.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Fecha de Nacimiento</Label>
-                <Input type="date" />
+                <Input 
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Género</Label>
-                <select className="w-full h-10 px-3 rounded-lg">
+                <select 
+                  className="w-full h-10 px-3 rounded-lg bg-[var(--glass)] border border-[var(--glass-border)] text-[var(--text-primary)]"
+                  value={formData.gender}
+                  onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                >
                   <option value="">Seleccionar</option>
                   <option value="male">Masculino</option>
                   <option value="female">Femenino</option>
@@ -253,12 +426,20 @@ export function PatientsModule() {
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Dirección</Label>
-                <Input placeholder="Dirección completa" />
+                <Input 
+                  placeholder="Dirección completa"
+                  value={formData.address}
+                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label className="text-[var(--text-mid)]">Notas / Alergias</Label>
-                <Input placeholder="Alergias conocidas, notas importantes..." />
+                <Input 
+                  placeholder="Alergias conocidas, notas importantes..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                />
               </div>
             </div>
             
@@ -267,11 +448,23 @@ export function PatientsModule() {
                 variant="outline" 
                 className="flex-1"
                 onClick={() => setShowNewPatientForm(false)}
+                disabled={saving}
               >
                 Cancelar
               </Button>
-              <Button className="flex-1 btn-gold" onClick={() => setShowNewPatientForm(false)}>
-                Guardar Paciente
+              <Button 
+                className="flex-1 btn-gold" 
+                onClick={handleCreatePatient}
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  'Guardar Paciente'
+                )}
               </Button>
             </div>
           </div>
