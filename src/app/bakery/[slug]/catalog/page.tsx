@@ -329,17 +329,8 @@ export default function BakeryCatalogPage() {
   const [viewCount, setViewCount] = useState(0);
   const [productViews, setProductViews] = useState<Record<string, number>>({});
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-
-    // Track visit
-    trackVisit();
-
-    return () => clearTimeout(timer);
-  }, [slug]);
-
   // Track visit to catalog
-  const trackVisit = async () => {
+  const trackVisit = useCallback(async () => {
     try {
       // In production, this would call the API
       // await fetch(`/api/bakery/catalog/${slug}/analytics`, {
@@ -355,7 +346,16 @@ export default function BakeryCatalogPage() {
     } catch (error) {
       console.error('Error tracking visit:', error);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+
+    // Track visit
+    trackVisit();
+
+    return () => clearTimeout(timer);
+  }, [slug, trackVisit]);
 
   // Track product view
   const trackProductView = useCallback((productId: string) => {
