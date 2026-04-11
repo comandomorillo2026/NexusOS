@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { BakeryDashboard } from "@/components/bakery/bakery-dashboard";
 import { BakeryProducts } from "@/components/bakery/bakery-products";
@@ -72,35 +72,56 @@ const menuItemConfig = [
 
 function BakeryPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { language } = useAppTranslation();
-  const [activeModule, setActiveModule] = useState("dashboard");
+  
+  // Get tab from URL params
+  const tabFromUrl = searchParams.get("tab");
+  const validTabs = ["dashboard", "pos", "products", "orders", "production", "customers", "invoices", "reports", "catalog", "analytics", "settings"];
+  const initialModule = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : "dashboard";
+  const [activeModule, setActiveModule] = useState(initialModule);
 
   // Get translations based on current language
   const translations = bakeryTranslations[language];
 
-  // Create menu items with translated labels
-  const menuItems = useMemo(() => {
-    return menuItemConfig.map((item) => ({
-      id: item.id,
-      label: translations.menuItems[item.id as keyof typeof translations.menuItems],
-      icon: item.icon,
-    }));
-  }, [translations]);
-
-  // Handle URL tab parameter
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab && menuItems.some((item) => item.id === tab)) {
-      setActiveModule(tab);
+  // Get tenant ID from localStorage (lazy evaluation)
+  const getTenantId = () => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('nexus_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.tenantId || 'demo-tenant';
+      }
     }
-  }, [searchParams, menuItems]);
+    return 'demo-tenant';
+  };
+
+  // Create menu items with translated labels
+  const menuItems = menuItemConfig.map((item) => ({
+    id: item.id,
+    label: translations.menuItems[item.id as keyof typeof translations.menuItems],
+    icon: item.icon,
+  }));
+
+  // Handle module change with URL update
+  const handleModuleChange = (module: string) => {
+    setActiveModule(module);
+    // Update URL without full navigation
+    const url = new URL(window.location.href);
+    if (module === "dashboard") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", module);
+    }
+    router.replace(url.pathname + url.search, { scroll: false });
+  };
 
   const renderContent = () => {
     switch (activeModule) {
       case "dashboard":
         return <BakeryDashboard />;
       case "pos":
-        return <BakeryPOS tenantId="demo-tenant" />;
+        return <BakeryPOS tenantId={getTenantId()} />;
       case "products":
         return <BakeryProducts />;
       case "orders":
@@ -130,7 +151,7 @@ function BakeryPageContent() {
       subtitle={translations.subtitle}
       menuItems={menuItems}
       activeModule={activeModule}
-      onModuleChange={setActiveModule}
+      onModuleChange={handleModuleChange}
       primaryColor="#F97316"
       secondaryColor="#FBBF24"
     >
